@@ -39,6 +39,7 @@ body {
 
 .left-section {
   font-size: 40px;
+  margin-left: -10px;
 }
 
 .middle-section {
@@ -218,6 +219,7 @@ body {
   background-color: #1a1b2e;
   padding: 10px 0;
   font-size: 12px;
+  margin-bottom: -30px;
 }
 
 .social a img {
@@ -292,6 +294,8 @@ body {
 
 .forgot-password {
   display: block;
+  margin: auto;
+  width: fit-content;
   margin-bottom: 20px;
   color: #ef233c;
   text-decoration: none;
@@ -323,4 +327,22 @@ body {
 .signup-text a {
   color: #ef233c;
   text-decoration: none;
+}
+
+#services-section {
+  scroll-margin-top: 350px;
+}
+
+#pricing-section {
+  scroll-margin-top: 150px;
+}
+
+#login-section {
+  scroll-margin-top: 170px;
+}
+
+@media (max-width: 1000px) {
+  .mobile {
+    display: none;
+  }
 }

@@ -20,15 +20,15 @@ function showAdminLoginForm() {
 
   // Set the inner HTML for the admin login form
   adminLoginDiv.innerHTML = `
-      <div class="login-text">Admin Login</div>
-      <div class="login-info">
-        <div class="input-group">
-          <input type="text" class="input-field" placeholder="Admin Username" />
-        </div>
-        <div class="input-group">
-          <input type="password" class="input-field" placeholder="Password" />
-        </div>
-        <button class="login-button">Login</button>
+      <form method="POST" action="">
+          <div class="input-group">
+            <input type="email" name="admin_email" class="input-field" placeholder="Admin Email" required />
+          </div>
+          <div class="input-group">
+            <input type="password" name="admin_password" class="input-field" placeholder="Password" required />
+          </div>
+          <button type="submit" name="admin_login" class="login-button">Login</button>
+        </form>
         <div class="signup-text">
           <a href="#" onclick="goBackToHomepage()">Go back to homepage</a>
         </div>
@@ -49,3 +49,10 @@ function showAdminLoginForm() {
 function goBackToHomepage() {
   location.reload();
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+  const registerForm = document.getElementById("register-form");
+  if (registerForm && window.location.hash === "#register-form") {
+    registerForm.scrollIntoView();
+  }
+});
