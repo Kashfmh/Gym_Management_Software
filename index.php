@@ -206,7 +206,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="footer-section social">
                 <h3>Follow Us</h3>
                 <a href="#">
-                    <img src="images/globe_24dp_E8EAED_FILL0_wght400_GRAD0_opsz24.png" alt="Facebook" />
+                    <img src="images/globe_24dp_E8EAED_FILL0_wght400_GRAD0_opsz24.png" alt="Socials" />
                 </a>
             </div>
         </div>
