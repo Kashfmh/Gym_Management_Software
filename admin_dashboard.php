@@ -45,7 +45,7 @@ if (!$admin) {
     <div class="header">
         <div class="left-section">
             <div class="hamburger">
-                <img src="images/menu_24dp_E8EAED_FILL0_wght400_GRAD0_opsz24.png" width="40px" style="margin-right: 20px;"/>Menu
+                <img src="images/menu_24dp_E8EAED_FILL0_wght400_GRAD0_opsz24.png" width="40px" style="margin-right: 20px;"/>
             </div>
             <img src="images/barbell-7834321_640-removebg-preview.png" width="100px" alt="Huan Fitness Centre logo" />
             <a href="#home"> HUAN FITNESS PALS (ADMIN PAGE)</a>
@@ -62,7 +62,7 @@ if (!$admin) {
 
     <div class="left-nav">
         <a href="#dashboard">Dashboard</a>
-        <a href="#profile">Profile</a>
+        <a href="#Ntruireq">Nutrionist Request</a>
         <a href="#settings">Settings</a>
         <a href="#logout">Logout</a>
     </div>
@@ -114,6 +114,33 @@ if (!$admin) {
             </table>
         </div>
     </div>
+
+    <form method="POST" action="request_nutritionist.php">
+    <label for="user_id">Select User:</label>
+    <select name="user_id" required>
+        <?php
+        // Assuming $pdo is your PDO connection
+        try {
+            $stmt = $pdo->query('SELECT id, first_name, last_name FROM users');
+            while ($user = $stmt->fetch()) {
+                echo "<option value='{$user['id']}'>{$user['first_name']} {$user['last_name']}</option>";
+            }
+        } catch (PDOException $e) {
+            echo "Error fetching users: " . $e->getMessage();
+        }
+        ?>
+    </select>
+
+    <label for="preferred_date">Preferred Date:</label>
+    <input type="date" name="preferred_date" required>
+
+    <label for="preferred_time">Preferred Time:</label>
+    <input type="time" name="preferred_time" required>
+
+    <button type="submit" name="request_meeting">Request Meeting</button>
+</form>
+
+
     <!-- Admin Profile Section -->
     <div id="profile-section" style="display: none;">
         <div class="profile-header">
@@ -175,6 +202,24 @@ if (!$admin) {
                 profileSection.style.display = 'block';
             };
         });
+
+        document.addEventListener('DOMContentLoaded', function() {
+    const dashboardSection = document.getElementById('dashboard-section');
+    const nutritionistRequestSection = document.getElementById('nutritionist-request-section');
+
+    document.getElementById('nav-dashboard').addEventListener('click', function(event) {
+        event.preventDefault();
+        dashboardSection.style.display = 'block';
+        nutritionistRequestSection.style.display = 'none';
+    });
+
+    document.getElementById('nav-nutritionist-request').addEventListener('click', function(event) {
+        event.preventDefault();
+        dashboardSection.style.display = 'none';
+        nutritionistRequestSection.style.display = 'block';
+    });
+});
+
     </script>
 
 </body>
