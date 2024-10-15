@@ -68,13 +68,15 @@ if (!$admin) {
     </div>
 
     <div id="main-content" class="main">
-        <div class="welcome-message">
+        <div class="welcome-message" id="dashboard">
             <h1>Welcome, Admin!</h1>
         </div>
         <div class="content">
             <table>
                 <tr>
                     <th>User ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
                     <th>Preferred Date</th>
                     <th>Preferred Time</th>
                     <th>Status</th>
@@ -82,10 +84,17 @@ if (!$admin) {
                 </tr>
                 <?php
                 try {
-                    $stmt = $pdo->query('SELECT * FROM nutritionist_requests');
+                    $stmt = $pdo->query('
+                      SELECT nr.*, u.first_name, u.last_name 
+                      FROM nutritionist_requests nr
+                      JOIN users u ON nr.user_id = u.id
+                    ');
+
                     while ($request = $stmt->fetch()) {
                         echo "<tr>
                                 <td>{$request['user_id']}</td>
+                                <td>{$request['first_name']}</td>
+                                <td>{$request['last_name']}</td>
                                 <td>{$request['preferred_date']}</td>
                                 <td>{$request['preferred_time']}</td>
                                 <td>{$request['status']}</td>

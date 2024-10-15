@@ -298,3 +298,53 @@ textarea {
   resize: vertical;
   min-height: 100px;
 }
+
+.forms {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.body-form, .nutritionist-form {
+    background-color: #ffffff; /* White background */
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    padding: 20px;
+    width: 48%; /* Adjust width to fit side by side */
+}
+
+.body-form h2, .nutritionist-form h2 {
+    color: #3b5998; /* Header color */
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.body-form input, .nutritionist-form input {
+    width: 100%; /* Full width */
+    padding: 10px;
+    margin-bottom: 15px; /* Space between inputs */
+    border: 1px solid #ccc; /* Light border */
+    border-radius: 4px; /* Rounded corners */
+    transition: border-color 0.3s ease; /* Smooth transition */
+}
+
+.body-form input:focus, .nutritionist-form input:focus {
+    border-color: #3b5998; /* Focus color */
+    outline: none; /* Remove default outline */
+}
+
+.body-form button, .nutritionist-form button {
+    width: 100%; /* Full width */
+    padding: 10px;
+    background-color: #3b5998; /* Button color */
+    color: white; /* Text color */
+    border: none; /* Remove border */
+    border-radius: 4px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.body-form button:hover, .nutritionist-form button:hover {
+    background-color: #8b9dc3; /* Darker shade on hover */
+}
+

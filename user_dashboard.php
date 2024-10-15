@@ -68,23 +68,26 @@ if (!$user) {
                 <h1>Welcome, <?php echo htmlspecialchars($user['first_name']); ?>!</h1>
             </div>
             <div class="forms">
-                <div class="body-form">
-                    <form method="POST" action="manage_body_data.php">
-                        <input type="number" name="weight" placeholder="Weight (kg)" required>
-                        <input type="text" name="exercise" placeholder="Exercise Details" required>
-                        <input type="number" name="water_consumption" placeholder="Water (liters)" required>
-                        <input type="date" name="date" required>
-                        <button type="submit" name="save_body_data">Save</button>
-                    </form>
-                </div>
-                <div class="nutritionist-form">
-                    <form method="POST" action="request_nutritionist.php">
-                        <input type="date" name="preferred_date" required>
-                        <input type="time" name="preferred_time" required>
-                        <button type="submit" name="request_meeting">Request Meeting</button>
-                    </form>
-                </div>
-            </div>
+              <div class="body-form">
+                  <h2>Body Data</h2>
+                  <form method="POST" action="manage_body_data.php">
+                      <input type="number" name="weight" placeholder="Achieve Weight (kg)" required>
+                      <input type="text" name="exercise" placeholder="Exercise Details" required>
+                      <input type="number" name="water_consumption" placeholder="Water (liters)" required>
+                      <input type="date" name="date" placeholder="Date" required>
+                      <button type="submit" name="save_body_data">Save</button>
+                  </form>
+              </div>
+              <div class="nutritionist-form">
+                  <h2>Request Nutritionist</h2>
+                  <form method="POST" action="request_nutritionist.php">
+                      <input type="date" name="preferred_date" required>
+                      <input type="time" name="preferred_time" required>
+                      <button type="submit" name="request_meeting">Request Meeting</button>
+                  </form>
+              </div>
+          </div>
+
         </div>
     </div>
 
