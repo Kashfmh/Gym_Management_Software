@@ -28,6 +28,26 @@ if (!$admin) {
     echo "Admin not found.";
     exit;
 }
+
+// Fetch all users for the dropdown
+$userStmt = $pdo->query('SELECT id, first_name, last_name FROM users');
+$users = $userStmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch nutritionist requests
+$filterUserId = isset($_POST['user_id']) ? $_POST['user_id'] : null;
+$requestQuery = 'SELECT nr.*, u.first_name, u.last_name 
+                 FROM nutritionist_requests nr
+                 JOIN users u ON nr.user_id = u.id';
+if ($filterUserId) {
+    $requestQuery .= ' WHERE nr.user_id = :user_id';
+}
+$requestStmt = $pdo->prepare($requestQuery);
+if ($filterUserId) {
+    $requestStmt->execute(['user_id' => $filterUserId]);
+} else {
+    $requestStmt->execute();
+}
+$requests = $requestStmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -50,7 +70,6 @@ if (!$admin) {
             <img src="images/barbell-7834321_640-removebg-preview.png" width="100px" alt="Huan Fitness Centre logo" />
             <a href="#home"> HUAN FITNESS PALS (ADMIN PAGE)</a>
         </div>
-        
         <div class="right-section">
             <div class="user-profile">
                 <button class="profile-btn">
@@ -61,17 +80,29 @@ if (!$admin) {
     </div>
 
     <div class="left-nav">
-        <a href="#dashboard">Dashboard</a>
-        <a href="#Ntruireq">Nutrionist Request</a>
+        <a href="#dashboard" id="nav-dashboard">Dashboard</a>
+        <a href="#Nutrireq" id="nav-nutritionist-request">Nutritionist Request</a>
         <a href="#settings">Settings</a>
         <a href="#logout">Logout</a>
     </div>
 
     <div id="main-content" class="main">
-        <div class="welcome-message" id="dashboard">
+        <div class="welcome-message" id="dashboard-section">
             <h1>Welcome, Admin!</h1>
         </div>
-        <div class="content">
+        
+        <div class="content" id="content-hide">
+          <form method="POST" action="">
+            <label for="user_id">Select User:</label>
+            <select name="user_id" id="user_id" onchange="this.form.submit()">
+                <option value="">All Users</option>
+                <?php foreach ($users as $user): ?>
+                    <option value="<?php echo $user['id']; ?>" <?php echo ($filterUserId == $user['id']) ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </form>
             <table>
                 <tr>
                     <th>User ID</th>
@@ -82,40 +113,30 @@ if (!$admin) {
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
-                <?php
-                try {
-                    $stmt = $pdo->query('
-                      SELECT nr.*, u.first_name, u.last_name 
-                      FROM nutritionist_requests nr
-                      JOIN users u ON nr.user_id = u.id
-                    ');
-
-                    while ($request = $stmt->fetch()) {
-                        echo "<tr>
-                                <td>{$request['user_id']}</td>
-                                <td>{$request['first_name']}</td>
-                                <td>{$request['last_name']}</td>
-                                <td>{$request['preferred_date']}</td>
-                                <td>{$request['preferred_time']}</td>
-                                <td>{$request['status']}</td>
-                                <td>
-                                    <form method='POST' action='manage_requests.php'>
-                                        <input type='hidden' name='request_id' value='{$request['id']}'>
-                                        <button type='submit' name='approve'>Approve</button>
-                                        <button type='submit' name='reject'>Reject</button>
-                                    </form>
-                                </td>
-                              </tr>";
-                    }
-                } catch (PDOException $e) {
-                    echo "Error fetching requests: " . $e->getMessage();
-                }
-                ?>
+                <?php foreach ($requests as $request): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($request['user_id']); ?></td>
+                        <td><?php echo htmlspecialchars($request['first_name']); ?></td>
+                        <td><?php echo htmlspecialchars($request['last_name']); ?></td>
+                        <td><?php echo htmlspecialchars($request['preferred_date']); ?></td>
+                        <td><?php echo htmlspecialchars($request['preferred_time']); ?></td>
+                        <td><?php echo htmlspecialchars($request['status']); ?></td>
+                        <td>
+                            <form method='POST' action='manage_requests.php'>
+                                <input type='hidden' name='request_id' value='<?php echo $request['id']; ?>'>
+                                <button type='submit' name='approve'>Approve</button>
+                                <button type='submit' name='reject'>Reject</button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
             </table>
         </div>
-    </div>
-
+        
+        <!--Admin Nutrition Request-->
+    <div class="form-request">
     <form method="POST" action="request_nutritionist.php">
+      <h1>Nutrition Request Form</h1> <br> 
     <label for="user_id">Select User:</label>
     <select name="user_id" required>
         <?php
@@ -137,9 +158,10 @@ if (!$admin) {
     <label for="preferred_time">Preferred Time:</label>
     <input type="time" name="preferred_time" required>
 
-    <button type="submit" name="request_meeting">Request Meeting</button>
+    <button id="Nutrireq" type="submit" name="request_meeting">Request Meeting</button>
 </form>
-
+</div>
+    </div>
 
     <!-- Admin Profile Section -->
     <div id="profile-section" style="display: none;">
@@ -172,10 +194,11 @@ if (!$admin) {
             <label for="edit-mobile">Mobile:</label>
             <input type="text" id="edit-mobile" name="mobile" value="<?php echo htmlspecialchars($admin['mobile']); ?>" required>
             <button type="submit" id="edit-btn">Save Changes</button>
-            <button type="button" id="edit-btn" onclick="cancelEdit()">Cancel</button>
+            <button type="button" onclick="cancelEdit()">Cancel</button>
         </form>
     </div>
-        <script>
+
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             const profileBtn = document.querySelector('.profile-btn');
             const profileSection = document.getElementById('profile-section');
@@ -201,26 +224,25 @@ if (!$admin) {
                 editProfileForm.style.display = 'none';
                 profileSection.style.display = 'block';
             };
+
+            // Navigation logic
+            const dashboardSection = document.getElementById('dashboard-section');
+            const nutritionistRequestSection = document.getElementById('nutritionist-request-section');
+            const requestFormSection = document.getElementById('content-hide');
+
+            document.getElementById('nav-dashboard').addEventListener('click', function(event) {
+                event.preventDefault();
+                dashboardSection.style.display = 'block';
+                nutritionistRequestSection.style.display = 'none';
+            });
+
+            document.getElementById('nav-nutritionist-request').addEventListener('click', function(event) {
+                event.preventDefault();
+                dashboardSection.style.display = 'none';
+                nutritionistRequestSection.style.display = 'none';
+                nutritionistRequestSection.style.display = 'block';
+            });
         });
-
-        document.addEventListener('DOMContentLoaded', function() {
-    const dashboardSection = document.getElementById('dashboard-section');
-    const nutritionistRequestSection = document.getElementById('nutritionist-request-section');
-
-    document.getElementById('nav-dashboard').addEventListener('click', function(event) {
-        event.preventDefault();
-        dashboardSection.style.display = 'block';
-        nutritionistRequestSection.style.display = 'none';
-    });
-
-    document.getElementById('nav-nutritionist-request').addEventListener('click', function(event) {
-        event.preventDefault();
-        dashboardSection.style.display = 'none';
-        nutritionistRequestSection.style.display = 'block';
-    });
-});
-
     </script>
-
 </body>
 </html>

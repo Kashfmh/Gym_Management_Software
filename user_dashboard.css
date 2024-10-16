@@ -55,29 +55,6 @@ body {
   margin: auto;
 }
 
-.left-nav {
-  position: fixed;
-  top: 100px;
-  left: 0;
-  width: 200px;
-  background-color: #3b5998; /* Different color */
-  height: calc(100% - 100px);
-  padding-top: 20px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-}
-
-.left-nav a {
-  display: block;
-  padding: 10px 20px;
-  color: white;
-  text-decoration: none;
-  font-family: "Bebas Neue", sans-serif;
-}
-
-.left-nav a:hover {
-  background-color: #8b9dc3; /* Different color */
-}
-
 .main {
   margin-left: 220px;
   margin-top: 120px;
@@ -100,24 +77,6 @@ body {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-th,
-td {
-  padding: 10px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-th {
-  background-color: #3b5998; /* Different color */
-  color: white;
 }
 
 button {
@@ -248,6 +207,10 @@ textarea {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.nutritionist-form{
+  width: 100vh;
+}
+
 .form-container h2 {
   margin-bottom: 20px;
   font-size: 24px;
@@ -301,7 +264,7 @@ textarea {
 
 .forms {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     margin-top: 20px;
 }
 
@@ -311,6 +274,12 @@ textarea {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
     padding: 20px;
     width: 48%; /* Adjust width to fit side by side */
+    transition: transform 0.3s; /* Smooth hover effect */
+    
+}
+
+.body-form:hover, .nutritionist-form:hover {
+    transform: scale(1.02); /* Slightly increase size on hover */
 }
 
 .body-form h2, .nutritionist-form h2 {
@@ -321,11 +290,12 @@ textarea {
 
 .body-form input, .nutritionist-form input {
     width: 100%; /* Full width */
-    padding: 10px;
+    padding: 12px; /* Increased padding for better touch targets */
     margin-bottom: 15px; /* Space between inputs */
     border: 1px solid #ccc; /* Light border */
     border-radius: 4px; /* Rounded corners */
     transition: border-color 0.3s ease; /* Smooth transition */
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
 }
 
 .body-form input:focus, .nutritionist-form input:focus {
@@ -335,7 +305,7 @@ textarea {
 
 .body-form button, .nutritionist-form button {
     width: 100%; /* Full width */
-    padding: 10px;
+    padding: 12px; /* Increased padding */
     background-color: #3b5998; /* Button color */
     color: white; /* Text color */
     border: none; /* Remove border */
@@ -347,4 +317,14 @@ textarea {
 .body-form button:hover, .nutritionist-form button:hover {
     background-color: #8b9dc3; /* Darker shade on hover */
 }
+
+/* Additional styling for better spacing */
+.forms > div {
+    margin-right: 10px; /* Space between forms */
+}
+
+.forms > div:last-child {
+    margin-right: 0; /* Remove margin from the last form */
+}
+
 

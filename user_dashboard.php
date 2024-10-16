@@ -44,7 +44,6 @@ if (!$user) {
 <body>
     <div class="header">
         <div class="left-section">
-            <div class="hamburger"><img src="images/menu_24dp_E8EAED_FILL0_wght400_GRAD0_opsz24.png" width="40px" style="margin-right: 20px;"/>Menu</div>
             <img src="images/barbell-7834321_640-removebg-preview.png" width="100px" alt="Huan Fitness Centre logo" /><a href="#home"> HUAN FITNESS PALS</a>
         </div>
         
@@ -53,13 +52,6 @@ if (!$user) {
                 <button class="profile-btn"><img src="images/account_circle_24dp_E8EAED_FILL0_wght400_GRAD0_opsz24.png" height="40px"/></button>
             </div>
         </div>
-    </div>
-
-    <div class="left-nav">
-        <a href="#dashboard">Dashboard</a>
-        <a href="#profile">Profile</a>
-        <a href="#settings">Settings</a>
-        <a href="#logout">Logout</a>
     </div>
 
     <div id="main-content" class="main">
@@ -78,6 +70,8 @@ if (!$user) {
                       <button type="submit" name="save_body_data">Save</button>
                   </form>
               </div>
+              </div>
+              <div class="forms">
               <div class="nutritionist-form">
                   <h2>Request Nutritionist</h2>
                   <form method="POST" action="request_nutritionist.php">
@@ -85,6 +79,7 @@ if (!$user) {
                       <input type="time" name="preferred_time" required>
                       <button type="submit" name="request_meeting">Request Meeting</button>
                   </form>
+              </div>
               </div>
           </div>
 
