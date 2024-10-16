@@ -11,7 +11,7 @@ body {
 
 .header {
   height: 100px;
-  background-color: #3b5998; /* Different color */
+  background-color: #3b5998;
   position: fixed;
   width: 100%;
   display: flex;
@@ -22,12 +22,18 @@ body {
 }
 
 .left-section,
+.middle-section,
 .right-section {
   display: flex;
   align-items: center;
 }
 
-.left-section a {
+.middle-section {
+  font-size: 25px;
+}
+
+.left-section a,
+.middle-section div a {
   font-family: "Bebas Neue", sans-serif;
   color: white;
   text-decoration: none;
@@ -47,7 +53,18 @@ body {
   border-radius: 5px;
   cursor: pointer;
   background-color: transparent;
-  margin-right: 50px;
+  margin-right: 70px;
+  margin-bottom: 10px;
+}
+
+.extra {
+  display: flex;
+}
+
+.extra div {
+  margin-right: 30px;
+  margin-left: 0;
+  cursor: pointer;
 }
 
 .profile-btn img {
@@ -56,41 +73,71 @@ body {
 }
 
 .main {
-  margin-left: 220px;
-  margin-top: 120px;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
   flex: 1;
+  margin-top: 70px;
 }
 
 .welcome-message {
   text-align: center;
-  margin-bottom: 20px;
+  font-size: 0.75rem;
+  color: #3b5998;
+  margin-top: 20px;
+  border-style: solid;
+  padding: 10px 0;
+  border-radius: 10px;
+  border-color: #3b5998;
+  background-color: #e9ebee;
+  transition: background-color 0.25s ease-in, color 0.25s ease-in;
+  width: 50vh;
+  box-sizing: border-box;
+  margin-bottom: 10px;
 }
 
-.welcome-message h1 {
-  font-size: 2rem;
-  color: #3b5998; /* Different color */
+.welcome-message:hover {
+  background-color: #3b5998;
+  color: #e9ebee;
+}
+
+.success-error-messages,
+.forms,
+.request-history {
+  margin-bottom: 40px;
+  width: 100%;
+  max-width: 600px;
+  box-sizing: border-box;
 }
 
 .content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: fit-content;
+  margin: auto;
   background-color: #fff;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
 }
 
 button {
-  padding: 5px 10px;
+  padding: 10px 15px;
   border: none;
+  margin-top: 10px;
   border-radius: 4px;
-  background-color: #8b9dc3; /* Different color */
+  background-color: #8b9dc3;
   color: white;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 button:hover {
-  background-color: #3b5998; /* Different color */
+  background-color: #3b5998;
 }
 
 #profile-section,
@@ -98,7 +145,7 @@ button:hover {
   width: 600px;
   margin: 20px auto;
   padding: 20px;
-  background-color: #e9ebee; /* Different color */
+  background-color: #e9ebee;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-top: 140px;
@@ -111,7 +158,12 @@ button:hover {
 
 textarea {
   height: 100px;
-  width: 595px;
+  width: 100%;
+  resize: vertical;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
 }
 
 .profile-header {
@@ -143,7 +195,7 @@ textarea {
   margin-top: 10px;
   padding: 5px 10px;
   font-size: 14px;
-  background-color: #8b9dc3; /* Different color */
+  background-color: #8b9dc3;
   color: white;
   border: none;
   border-radius: 4px;
@@ -152,7 +204,7 @@ textarea {
 }
 
 .profile-header button:hover {
-  background-color: #3b5998; /* Different color */
+  background-color: #3b5998;
 }
 
 .profile-details p {
@@ -185,7 +237,7 @@ textarea {
   margin-top: 20px;
   padding: 10px;
   font-size: 16px;
-  background-color: #d9534f; /* Different color */
+  background-color: #d9534f;
   color: white;
   border: none;
   border-radius: 4px;
@@ -194,58 +246,71 @@ textarea {
 }
 
 .logout-button:hover {
-  background-color: #c9302c; /* Different color */
+  background-color: #c9302c;
 }
 
-/* General Form Styling */
-.form-container {
-  max-width: 600px;
-  margin: 20px auto;
+.forms {
+  background-color: #fff;
   padding: 20px;
-  background-color: #e9ebee;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.nutritionist-form{
+  margin-bottom: 40px; /* Add spacing between sections */
   width: 100vh;
+  max-width: 1000px;
 }
 
-.form-container h2 {
+.forms h1 {
+  color: #3b5998;
+  text-align: center;
   margin-bottom: 20px;
-  font-size: 24px;
-  color: #3b5998; /* Header color */
+}
+
+.body-form,
+.nutritionist-form {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 100%;
+  transition: transform 0.3s;
+  margin: auto;
+  margin-bottom: 60px;
+}
+
+.body-form:hover,
+.nutritionist-form:hover {
+  transform: scale(1.02);
+}
+
+.body-form h1,
+.nutritionist-form h1 {
+  color: #3b5998;
+  margin-bottom: 15px;
   text-align: center;
 }
 
-.form-container form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.form-container input,
-.form-container select,
-.form-container textarea {
+.body-form input,
+.nutritionist-form input {
+  width: 100%;
   padding: 12px;
-  font-size: 16px;
+  margin-bottom: 15px;
   border: 1px solid #ccc;
   border-radius: 4px;
   transition: border-color 0.3s ease;
-  background-color: #f9f9f9;
+  box-sizing: border-box;
 }
 
-.form-container input:focus,
-.form-container select:focus,
-.form-container textarea:focus {
-  border-color: #3b5998; /* Focus color */
+.body-form input:focus,
+.nutritionist-form input:focus {
+  border-color: #3b5998;
   outline: none;
 }
 
-.form-container button {
-  padding: 10px 15px;
-  font-size: 16px;
-  background-color: #8b9dc3; /* Button color */
+.body-form button,
+.nutritionist-form button {
+  width: 100%;
+  padding: 12px;
+  background-color: #3b5998;
   color: white;
   border: none;
   border-radius: 4px;
@@ -253,78 +318,128 @@ textarea {
   transition: background-color 0.3s ease;
 }
 
-.form-container button:hover {
-  background-color: #3b5998; /* Hover color */
+.body-form button:hover,
+.nutritionist-form button:hover {
+  background-color: #8b9dc3;
 }
 
-textarea {
-  resize: vertical;
-  min-height: 100px;
+.success-message {
+  color: green;
+  background-color: #e6ffe6;
+  border: 1px solid green;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  text-align: center;
 }
 
-.forms {
-    display: flex;
+.error-message {
+  color: red;
+  background-color: #ffe6e6;
+  border: 1px solid red;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.success-message,
+.error-message {
+  transition: opacity 0.5s ease-in-out;
+}
+
+.request-history {
+  width: 100%;
+  max-width: 1000px;
+  margin-bottom: 40px;
+  background-color: #ffffff;
+  padding: 25px 25px;
+  margin: auto;
+  border-radius: 10px;
+  transition: transform 0.3s;
+}
+
+.request-history:hover {
+  transform: scale(1.02);
+}
+
+.request-history h1 {
+  color: #3b5998;
+  text-align: center;
+}
+
+.request-history table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.request-history th,
+.request-history td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.request-history th {
+  background-color: #f2f2f2;
+  color: #333;
+}
+
+.request-history tr:hover {
+  background-color: #f1f1f1;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination a {
+  margin: 0 5px;
+  padding: 8px 12px;
+  text-decoration: none;
+  color: #2b2d42;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.pagination a.active {
+  background-color: #3b5998;
+  color: white;
+}
+
+.pagination a:hover:not(.active) {
+  background-color: #f1f1f1;
+}
+
+@media (max-width: 768px) {
+  .forms {
     flex-direction: column;
-    margin-top: 20px;
+    align-items: center;
+  }
+
+  .body-form,
+  .nutritionist-form {
+    width: 90%;
+    margin-bottom: 20px;
+  }
+
+  #profile-section,
+  #edit-profile-form {
+    width: 90%;
+  }
 }
 
-.body-form, .nutritionist-form {
-    background-color: #ffffff; /* White background */
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    padding: 20px;
-    width: 48%; /* Adjust width to fit side by side */
-    transition: transform 0.3s; /* Smooth hover effect */
-    
+#body-data-section {
+  scroll-margin-top: 100px;
 }
 
-.body-form:hover, .nutritionist-form:hover {
-    transform: scale(1.02); /* Slightly increase size on hover */
+#request-nutritionist-section {
+  scroll-margin-top: 200px;
 }
 
-.body-form h2, .nutritionist-form h2 {
-    color: #3b5998; /* Header color */
-    margin-bottom: 15px;
-    text-align: center;
+#request-history-section {
+  scroll-margin-top: 300px;
 }
-
-.body-form input, .nutritionist-form input {
-    width: 100%; /* Full width */
-    padding: 12px; /* Increased padding for better touch targets */
-    margin-bottom: 15px; /* Space between inputs */
-    border: 1px solid #ccc; /* Light border */
-    border-radius: 4px; /* Rounded corners */
-    transition: border-color 0.3s ease; /* Smooth transition */
-    box-sizing: border-box; /* Include padding and border in element's total width and height */
-}
-
-.body-form input:focus, .nutritionist-form input:focus {
-    border-color: #3b5998; /* Focus color */
-    outline: none; /* Remove default outline */
-}
-
-.body-form button, .nutritionist-form button {
-    width: 100%; /* Full width */
-    padding: 12px; /* Increased padding */
-    background-color: #3b5998; /* Button color */
-    color: white; /* Text color */
-    border: none; /* Remove border */
-    border-radius: 4px; /* Rounded corners */
-    cursor: pointer; /* Pointer cursor */
-    transition: background-color 0.3s ease; /* Smooth transition */
-}
-
-.body-form button:hover, .nutritionist-form button:hover {
-    background-color: #8b9dc3; /* Darker shade on hover */
-}
-
-/* Additional styling for better spacing */
-.forms > div {
-    margin-right: 10px; /* Space between forms */
-}
-
-.forms > div:last-child {
-    margin-right: 0; /* Remove margin from the last form */
-}
-
-

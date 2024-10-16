@@ -16,20 +16,21 @@ function showAdminLoginForm() {
 
   // Create a new div for the admin login form
   const adminLoginDiv = document.createElement("div");
-  adminLoginDiv.className = "login-box";
+  adminLoginDiv.className = "login-box-admin";
 
   // Set the inner HTML for the admin login form
   adminLoginDiv.innerHTML = `
       <form method="POST" action="">
+      <span class="admin-txt">ADMIN LOGIN FORM</span>
           <div class="input-group">
-            <input type="email" name="admin_email" class="input-field" placeholder="Admin Email" required />
+            <input type="email" name="admin_email" class="input-field" placeholder="Email" required />
           </div>
           <div class="input-group">
             <input type="password" name="admin_password" class="input-field" placeholder="Password" required />
           </div>
-          <button type="submit" name="admin_login" class="login-button">Login</button>
+          <button type="submit" name="admin_login" class="login-button-admin">Login</button>
         </form>
-        <div class="signup-text">
+        <div class="back-to-homepage-text">
           <a href="#" onclick="goBackToHomepage()">Go back to homepage</a>
         </div>
       </div>
