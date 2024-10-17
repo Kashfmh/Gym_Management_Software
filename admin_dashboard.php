@@ -178,7 +178,7 @@ if (!$admin) {
 
                     <!--Admin Nutrition Request-->
     <div class="form-request" id="request-nutritionist-section">
-    <form method="POST" action="request_nutritionist.php"> <!-- Ensure action points to the correct file -->
+    <form method="POST" action="request_nutritionist_admin.php"> <!-- Ensure action points to the correct file -->
         <h1>Nutrition Request Form</h1>
         <label for="user_id" id="nut">Select User:</label>
         <select class="request-form-select" name="user_id" required>
