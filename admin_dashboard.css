@@ -275,81 +275,152 @@ button:hover {
 #profile-section {
   display: none;
   padding: 20px;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   color: #2b2d42;
   width: 100%;
-  max-width: 500px;
+  max-width: 600px;
   margin: auto;
   border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .profile-header img {
   height: 80px;
-  margin-bottom: 10px;
-  margin-left: 44%;
-  margin-bottom: 0;
+  border-radius: 50%; /* Circular avatar */
+  border: 2px solid #3a5a40; /* Border around the avatar */
 }
 
 #admin-name {
-  margin-left: 45%;
-  margin-top: 0;
+  font-size: 24px;
+  font-weight: bold;
+  margin: 10px 0;
 }
 
 .profile-header p {
-  margin-left: 39%;
-  margin-top: -15px;
+  font-size: 16px;
+  color: #6c757d; /* Lighter text for email */
 }
 
 .profile-header button {
-  margin-left: 48%;
-  margin-top: -15px;
-  padding: 5px 10px;
+  padding: 8px 15px;
   font-size: 14px;
-  background-color: #588157;
+  background-color: #3a5a40;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  font-family: arial;
 }
 
 .profile-header button:hover {
-  background-color: #3a5a40;
+  background-color: #588157;
+}
+
+/* Profile Details */
+.profile-details {
+  margin: 20px 0;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .profile-details p {
-  margin: 5px 0;
+  margin: 10px 0;
+  font-size: 16px;
+}
+
+/* Edit Profile Form */
+#edit-profile-form {
+  display: none;
+  padding: 20px;
+  background-color: #ffffff;
+  color: #2b2d42;
+  width: 100%;
+  max-width: 600px;
+  margin: auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+#edit-profile-form h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #3a5a40;
+}
+
+#edit-profile-form label {
+  font-weight: bold;
+}
+
+#edit-profile-form input[type="text"],
+#edit-profile-form input[type="email"] {
+  width: calc(100% - 20px);
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: border-color 0.3s;
+}
+
+#edit-profile-form input[type="text"]:focus,
+#edit-profile-form input[type="email"]:focus {
+  border-color: #3a5a40; /* Focus border color */
+}
+
+#edit-profile-form button {
+  background-color: #ef233c;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: "Bebas Neue", sans-serif;
+  width: 100%;
+  margin-top: 10px;
+}
+
+#edit-profile-form button:hover {
+  background-color: #d90429;
 }
 
 #back-to-homepage {
-  margin-top: -15px;
+  margin-top: 10px;
   padding: 10px 10px;
   font-size: 14px;
-  background-color: #588157;
+  background-color: #3a5a40;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  font-family: arial;
+  display: block; /* Center the button */
+  width: 100%;
 }
 
 #back-to-homepage:hover {
-  background-color: #3a5a40;
+  background-color: #588157;
 }
 
-#logout-admin {
-  margin-top: -15px;
-  padding: 10px 10px;
-  font-size: 14px;
-  background-color: #d9534f;
+/* Logout Button */
+.logout-button {
+  padding: 10px 20px;
+  background-color: #ef233c;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  font-family: arial;
+  width: 100%; /* Full width for consistency */
+}
+
+.logout-button:hover {
+  background-color: #d90429;
 }
 
 #logout-admin:hover {

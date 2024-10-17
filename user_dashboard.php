@@ -319,7 +319,7 @@ $bodyDataHistory = $bodyDataStmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
 
         <!-- Go Back to Homepage Button -->
-        <button onclick="goBackToHomepage()" style="margin-top: 10px;">Go Back to Homepage</button>
+        <button id="back-to-homepage" onclick="goBackToHomepage()" style="margin-top: 10px;">Go Back to Homepage</button>
 
         <!-- Logout Button -->
         <form method="POST" action="logout.php">
@@ -349,7 +349,7 @@ $bodyDataHistory = $bodyDataStmt->fetchAll(PDO::FETCH_ASSOC);
             <strong>Address:</strong>
             <textarea name="address" required><?php echo htmlspecialchars($user['address']); ?></textarea>
             <button type="submit" id="user-btn">Update</button>
-            <button type="button" id="cancel-btn" onclick="cancelEditProfile()">Cancel</button>
+            <button class="cancel-button" type="button" id="cancel-btn=" onclick="cancelEditProfile()">Cancel</button>
         </form>
     </div>
 
