@@ -30,13 +30,14 @@ $users = $userStmt->fetchAll(PDO::FETCH_ASSOC);
 // Fetch nutritionist requests
 $filterUserId = isset($_POST['user_id']) ? $_POST['user_id'] : null;
 
-$requestQuery = 'SELECT nr.*, u.first_name, u.last_name 
+$requestQuery = 'SELECT nr.*, u.id AS user_id, u.first_name, u.last_name 
                  FROM nutritionist_requests nr
                  JOIN users u ON nr.user_id = u.id';
 if ($filterUserId) {
     $requestQuery .= ' WHERE nr.user_id = :user_id';
 }
 $requestQuery .= ' ORDER BY nr.created_at DESC LIMIT :limit OFFSET :offset'; // Order by created_at
+
 
 $requestStmt = $pdo->prepare($requestQuery);
 if ($filterUserId) {
@@ -119,10 +120,12 @@ if (!$admin) {
                 <?php endforeach; ?>
             </select>
         </form>
-           <table>
+          <table>
     <thead>
         <tr>
-            <th>Date/Time Created</th>
+            <th>User ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
             <th>Date</th>
             <th>Time</th>
             <th>Status</th>
@@ -132,23 +135,27 @@ if (!$admin) {
     <tbody>
         <?php foreach ($requests as $request): ?>
             <tr>
-                <td><?php echo htmlspecialchars($request['created_at']); ?></td>
+                <td><?php echo htmlspecialchars($request['user_id']); ?></td>
+                <td><?php echo htmlspecialchars($request['first_name']); ?></td>
+                <td><?php echo htmlspecialchars($request['last_name']); ?></td>
                 <td><?php echo htmlspecialchars($request['preferred_date']); ?></td>
                 <td><?php echo htmlspecialchars($request['preferred_time']); ?></td>
                 <td><?php echo htmlspecialchars($request['status']); ?></td>
-                        <td>
-    <form method="POST" action="manage_requests.php" onsubmit="return handleFormSubmit(event, '<?php echo $request['id']; ?>', 'approve')">
-        <input type='hidden' name='request_id' value='<?php echo $request['id']; ?>'>
-        <button type='submit'>Approve</button>
-    </form>
-    <form method="POST" action="manage_requests.php" onsubmit="return handleFormSubmit(event, '<?php echo $request['id']; ?>', 'reject')">
-        <input type='hidden' name='request_id' value='<?php echo $request['id']; ?>'>
-        <button type='submit'>Reject</button>
-    </form>
-</td>
-                    </tr>
-                <?php endforeach; ?>
-            </table>
+                <td>
+                    <form method="POST" action="manage_requests.php" onsubmit="return handleFormSubmit(event, '<?php echo $request['id']; ?>', 'approve')">
+                        <input type='hidden' name='request_id' value='<?php echo $request['id']; ?>'>
+                        <button type='submit'>Approve</button>
+                    </form>
+                    <form method="POST" action="manage_requests.php" onsubmit="return handleFormSubmit(event, '<?php echo $request['id']; ?>', 'reject')">
+                        <input type='hidden' name='request_id' value='<?php echo $request['id']; ?>'>
+                        <button type='submit'>Reject</button>
+                    </form>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+
 
             <div class="pagination">
     <?php if ($page > 1): ?>

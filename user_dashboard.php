@@ -113,7 +113,7 @@ if (isset($_SESSION['request_status'])) {
 
         <div class="forms nutritionist-form" id="request-nutritionist-section">
             <h1>Request Nutritionist</h1>
-            <form method="POST" action="request_nutritionist.php">
+            <form method="POST" action="request_nutritionist_user.php">
                 <input type="hidden" name="user_id" value="<?php echo $_SESSION['user_id']; ?>">
                 <input type="date" name="preferred_date" required>
                 <input type="time" name="preferred_time" required>
