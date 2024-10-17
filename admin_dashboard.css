@@ -266,6 +266,11 @@ button:hover {
   color: #3a5a40;
 }
 
+.request-form-select {
+  width: 1366px;
+  margin: auto;
+}
+
 /* Profile Section */
 #profile-section {
   display: none;

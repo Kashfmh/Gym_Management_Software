@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['user_logged_in']) || !isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['admin_logged_in'])) {
     header('Location: index.php');
     exit;
 }
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate the preferred date
     if ($preferred_date < $today) {
         $_SESSION['request_status'] = 'error'; // Set error status
-        header('Location: user_dashboard.php'); // Redirect back to dashboard
+        header('Location: admin_dashboard.php'); // Redirect back to admin dashboard
         exit;
     }
 
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ]);
 
     $_SESSION['request_status'] = 'success'; // Set success status
-    header('Location: user_dashboard.php'); // Redirect back to dashboard
+    header('Location: admin_dashboard.php'); // Redirect back to admin dashboard
     exit;
 }
 ?>

@@ -36,7 +36,7 @@ $requestQuery = 'SELECT nr.*, u.first_name, u.last_name
 if ($filterUserId) {
     $requestQuery .= ' WHERE nr.user_id = :user_id';
 }
-$requestQuery .= ' LIMIT :limit OFFSET :offset'; // Add limit and offset
+$requestQuery .= ' ORDER BY nr.created_at DESC LIMIT :limit OFFSET :offset'; // Order by created_at
 
 $requestStmt = $pdo->prepare($requestQuery);
 if ($filterUserId) {
@@ -119,24 +119,23 @@ if (!$admin) {
                 <?php endforeach; ?>
             </select>
         </form>
-            <table>
-                <tr>
-                    <th>User ID</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Preferred Date</th>
-                    <th>Preferred Time</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-                <?php foreach ($requests as $request): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($request['user_id']); ?></td>
-                        <td><?php echo htmlspecialchars($request['first_name']); ?></td>
-                        <td><?php echo htmlspecialchars($request['last_name']); ?></td>
-                        <td><?php echo htmlspecialchars($request['preferred_date']); ?></td>
-                        <td><?php echo htmlspecialchars($request['preferred_time']); ?></td>
-                        <td><?php echo htmlspecialchars($request['status']); ?></td>
+           <table>
+    <thead>
+        <tr>
+            <th>Date/Time Created</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($requests as $request): ?>
+            <tr>
+                <td><?php echo htmlspecialchars($request['created_at']); ?></td>
+                <td><?php echo htmlspecialchars($request['preferred_date']); ?></td>
+                <td><?php echo htmlspecialchars($request['preferred_time']); ?></td>
+                <td><?php echo htmlspecialchars($request['status']); ?></td>
                         <td>
     <form method="POST" action="manage_requests.php" onsubmit="return handleFormSubmit(event, '<?php echo $request['id']; ?>', 'approve')">
         <input type='hidden' name='request_id' value='<?php echo $request['id']; ?>'>
@@ -169,37 +168,34 @@ if (!$admin) {
 
             </div>
             </div>
-        </div>
-        
-        <!--Admin Nutrition Request-->
+
+                    <!--Admin Nutrition Request-->
     <div class="form-request" id="request-nutritionist-section">
-    <form method="POST" action="request_nutritionist.php">
-      <h1>Nutrition Request Form</h1> <br> 
-    <label for="user_id" id="nut">Select User:</label>
-    <select name="user_id" required>
-        <?php
-        // Assuming $pdo is your PDO connection
-        try {
+    <form method="POST" action="request_nutritionist.php"> <!-- Ensure action points to the correct file -->
+        <h1>Nutrition Request Form</h1>
+        <label for="user_id" id="nut">Select User:</label>
+        <select class="request-form-select" name="user_id" required>
+            <?php
+            // Fetch users from the database
             $stmt = $pdo->query('SELECT id, first_name, last_name FROM users');
             while ($user = $stmt->fetch()) {
                 echo "<option value='{$user['id']}'>{$user['first_name']} {$user['last_name']}</option>";
             }
-        } catch (PDOException $e) {
-            echo "Error fetching users: " . $e->getMessage();
-        }
-        ?>
-    </select>
+            ?>
+        </select>
 
-    <label for="preferred_date">Preferred Date:</label>
-    <input type="date" name="preferred_date" required>
+        <label for="preferred_date">Preferred Date:</label>
+        <input type="date" name="preferred_date" required>
 
-    <label for="preferred_time">Preferred Time:</label>
-    <input type="time" name="preferred_time" required>
+        <label for="preferred_time">Preferred Time:</label>
+        <input type="time" name="preferred_time" required>
 
-    <button id="Nutrireq" type="submit" name="request_meeting">Request Meeting</button>
-</form>
+        <button id="Nutrireq" type="submit" name="request_meeting">Request Meeting</button>
+    </form>
 </div>
-    </div>
+
+        </div>
+        
 
     <!-- Admin Profile Section -->
     <div id="profile-section" style="display: none;">
