@@ -47,12 +47,78 @@ $countStmt->execute(['user_id' => $_SESSION['user_id']]);
 $totalRequests = $countStmt->fetchColumn();
 $totalPages = ceil($totalRequests / $limit); // Total number of pages
 
+// Pagination Variables for Body Data History
+$bodyDataLimit = 10; // Number of records per page
+$bodyDataPage = isset($_GET['body_data_page']) ? (int)$_GET['body_data_page'] : 1; // Current page number
+$bodyDataOffset = ($bodyDataPage - 1) * $bodyDataLimit; // Offset for SQL query
+
+// Fetch body data history with pagination
+$bodyDataQuery = 'SELECT bdh.*, u.first_name, u.last_name 
+                  FROM body_data_history bdh
+                  JOIN users u ON bdh.user_id = u.id
+                  ORDER BY bdh.created_at DESC
+                  LIMIT :limit OFFSET :offset';
+$bodyDataStmt = $pdo->prepare($bodyDataQuery);
+$bodyDataStmt->bindParam(':limit', $bodyDataLimit, PDO::PARAM_INT);
+$bodyDataStmt->bindParam(':offset', $bodyDataOffset, PDO::PARAM_INT);
+$bodyDataStmt->execute();
+$bodyDataHistory = $bodyDataStmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Count total body data history records for pagination
+$countBodyDataStmt = $pdo->prepare("SELECT COUNT(*) FROM body_data_history WHERE user_id = :user_id");
+$countBodyDataStmt->bindParam(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
+$countBodyDataStmt->execute();
+$totalBodyData = $countBodyDataStmt->fetchColumn();
+$totalBodyDataPages = ceil($totalBodyData / $bodyDataLimit); // Total number of pages
+
+
 // Check for request status
 $request_status = null;
 if (isset($_SESSION['request_status'])) {
     $request_status = $_SESSION['request_status'];
     unset($_SESSION['request_status']); // Clear the session variable
 }
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_POST['submit_body_data'])) {
+        $user_id = $_SESSION['user_id'];
+        $height = $_POST['height'];
+        $weight = $_POST['weight'];
+        $bmi = $_POST['bmi'];
+        $exercise = $_POST['exercise'];
+        $water_consumption = $_POST['water_consumption'];
+
+        // Insert body data into the database
+        $stmt = $pdo->prepare('INSERT INTO body_data_history (user_id, height, weight, bmi, exercise, water_consumption) VALUES (?, ?, ?, ?, ?, ?)');
+        $stmt->execute([$user_id, $height, $weight, $bmi, $exercise, $water_consumption]);
+
+        // Set a success message in the session
+        $_SESSION['success_message'] = "Data successfully added.";
+
+        // Redirect to the same page
+        header('Location: user_dashboard.php'); // Change to your actual file name
+        exit; // Ensure no further code is executed
+    }
+}
+
+// Display success message after redirect
+if (isset($_SESSION['success_message'])) {
+    $success_message = $_SESSION['success_message'];
+    unset($_SESSION['success_message']); // Clear the session variable
+}
+
+
+
+// Fetch body data history
+$bodyDataQuery = 'SELECT bdh.*, u.first_name, u.last_name 
+                  FROM body_data_history bdh
+                  JOIN users u ON bdh.user_id = u.id
+                  ORDER BY bdh.created_at DESC';
+$bodyDataStmt = $pdo->prepare($bodyDataQuery);
+$bodyDataStmt->execute();
+$bodyDataHistory = $bodyDataStmt->fetchAll(PDO::FETCH_ASSOC);
+
+
 ?>
 
 <!DOCTYPE html>
@@ -92,6 +158,14 @@ if (isset($_SESSION['request_status'])) {
             <h1>Welcome, <?php echo htmlspecialchars($user['first_name']); ?>!</h1>
         </div>
 
+        <!--Display success message-->
+        <?php if (isset($success_message)): ?>
+        <div class="alert alert-success" id="success-message">
+            <?php echo htmlspecialchars($success_message); ?>
+        </div>
+        <?php endif; ?>
+
+
         <div class="success-error-messages">
             <?php if ($request_status === 'success'): ?>
                 <div class="success-message">Request successfully submitted!</div>
@@ -102,13 +176,26 @@ if (isset($_SESSION['request_status'])) {
 
         <div class="forms body-form" id="body-data-section">
             <h1>Body Data</h1>
-            <form method="POST" action="manage_body_data.php">
-                <input type="number" name="weight" placeholder="Achieve Weight (kg)" required>
-                <input type="text" name="exercise" placeholder="Exercise Details" required>
-                <input type="number" name="water_consumption" placeholder="Water (liters)" required>
-                <input type="date" name="date" required>
-                <button type="submit" name="save_body_data">Save</button>
+            <form method="POST" action="user_dashboard.php">
+                <label for="height">Height (cm):</label>
+                <input type="number" name="height" id="height" required>
+
+                <label for="weight">Weight (kg):</label>
+                <input type="number" name="weight" id="weight" required>
+
+                <label for="bmi">BMI:</label>
+                <input type="number" name="bmi" id="bmi" step="0.01" required>
+
+                <label for="exercise">Exercise (type or duration):</label>
+                <input type="text" name="exercise" id="exercise" required>
+
+                <label for="water_consumption">Water Consumption (liters):</label>
+                <input type="number" name="water_consumption" id="water_consumption" step="0.01" required>
+
+                <button type="submit" name="submit_body_data">Save</button>
             </form>
+
+
         </div>
 
         <div class="forms nutritionist-form" id="request-nutritionist-section">
@@ -158,6 +245,57 @@ if (isset($_SESSION['request_status'])) {
                 <?php endif; ?>
             </div>
         </div>
+                       <!--Body Data History Table-->
+    <div class="body-data-history">
+        <h2>Body Data History</h2>
+<table>
+    <thead>
+        <tr>
+            <th>User ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Height (cm)</th>
+            <th>Weight (kg)</th>
+            <th>BMI</th>
+            <th>Exercise</th>
+            <th>Water Consumption (liters)</th>
+            <th>Date/Time Created</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($bodyDataHistory as $data): ?>
+            <tr>
+                <td><?php echo htmlspecialchars($data['user_id']); ?></td>
+                <td><?php echo htmlspecialchars($data['first_name']); ?></td>
+                <td><?php echo htmlspecialchars($data['last_name']); ?></td>
+                <td><?php echo htmlspecialchars($data['height']); ?></td>
+                <td><?php echo htmlspecialchars($data['weight']); ?></td>
+                <td><?php echo htmlspecialchars($data['bmi']); ?></td>
+                <td><?php echo htmlspecialchars($data['exercise']); ?></td> <!-- Display exercise -->
+                <td><?php echo htmlspecialchars($data['water_consumption']); ?></td> <!-- Display water consumption -->
+                <td><?php echo htmlspecialchars($data['created_at']); ?></td>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+
+ <!-- Pagination Links for Body Data History -->
+    <div class="pagination">
+        <?php if ($bodyDataPage > 1): ?>
+            <a href="?body_data_page=<?php echo $bodyDataPage - 1; ?>">&laquo; Previous</a>
+        <?php endif; ?>
+        
+        <?php for ($i = 1; $i <= $totalBodyDataPages; $i++): ?>
+            <a href="?body_data_page=<?php echo $i; ?>" class="<?php echo ($i === $bodyDataPage) ? 'active' : ''; ?>">
+                <?php echo $i; ?>
+            </a>
+        <?php endfor; ?>
+        
+        <?php if ($bodyDataPage < $totalBodyDataPages): ?>
+            <a href="?body_data_page=<?php echo $bodyDataPage + 1; ?>">Next &raquo;</a>
+        <?php endif; ?>
+    </div>
+</div>
     </div>
 
     <!-- User Profile Section -->
@@ -264,6 +402,16 @@ if (isset($_SESSION['request_status'])) {
 
         // Call the function on page load
         window.onload = hideMessages;
+
+        document.addEventListener('DOMContentLoaded', function() {
+        const successMessage = document.getElementById('success-message');
+        if (successMessage) {
+            setTimeout(() => {
+                successMessage.style.opacity = '0'; // Fade out effect
+                setTimeout(() => successMessage.remove(), 500); // Remove from DOM after fade out
+            }, 3000); // 3-second delay
+        }
+    });
     </script>
 </body>
 </html>
