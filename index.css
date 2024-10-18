@@ -335,6 +335,19 @@ body {
   transition: background-color 0.3s ease;
 }
 
+.register-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #2b2d42;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 20px;
+}
+
 .login-button-admin {
   width: 100%;
   margin-top: 20px;
@@ -349,6 +362,10 @@ body {
 }
 
 .login-button:hover {
+  background-color: #344055;
+}
+
+.register-button:hover {
   background-color: #344055;
 }
 

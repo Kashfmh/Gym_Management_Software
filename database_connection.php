@@ -18,4 +18,5 @@ try {
     // Handle connection error
     die("Could not connect to the database $db :" . $e->getMessage());
 }
+
 ?>

@@ -175,6 +175,7 @@ textarea {
   width: 100%;
   max-width: 600px;
   margin: auto;
+  margin-top: 120px;
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
@@ -333,7 +334,7 @@ textarea {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 40px; /* Add spacing between sections */
   width: 100vh;
-  max-width: 1000px;
+  max-width: 1350px;
 }
 
 .forms h1 {
@@ -427,7 +428,7 @@ textarea {
 
 .request-history {
   width: 100%;
-  max-width: 1000px;
+  max-width: 1350px;
   margin-bottom: 40px;
   background-color: #ffffff;
   padding: 25px 25px;
@@ -493,7 +494,7 @@ textarea {
 
 .body-data-history {
   width: 100%;
-  max-width: 955px;
+  max-width: 1300px;
   margin-bottom: 40px;
   background-color: #ffffff;
   padding: 25px 25px;
@@ -505,6 +506,12 @@ textarea {
 
 .body-data-history:hover {
   transform: scale(1.02);
+}
+
+.body-data-history h1 {
+  color: #3b5998;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .alert {
@@ -554,6 +561,67 @@ h2 {
   margin-top: 30px;
   font-size: 24px;
   color: #333;
+}
+
+button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-right: 5px; /* Space between buttons */
+}
+
+button.update {
+  background-color: #3b5898dc;
+  color: white;
+  margin: auto;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+button.update:hover {
+  background-color: #3b5998;
+}
+
+.delete {
+  background-color: #dc3545;
+  margin: auto;
+  color: white;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.delete:hover {
+  background-color: #c82333; /* Darker red on hover */
+}
+
+/* Search Bar Styles */
+.search-bar {
+  padding: 10px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.search-bar:focus {
+  border-color: #3b5998; /* Change border color on focus */
+  outline: none; /* Remove default outline */
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Add shadow */
+}
+
+.reset-search {
+  height: 40px;
+  width: 100%;
+  max-width: 100px;
+  margin: auto;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  background-color: #3b5898dc;
 }
 
 @media (max-width: 768px) {

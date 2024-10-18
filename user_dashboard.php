@@ -178,13 +178,13 @@ $bodyDataHistory = $bodyDataStmt->fetchAll(PDO::FETCH_ASSOC);
             <h1>Body Data</h1>
             <form method="POST" action="user_dashboard.php">
                 <label for="height">Height (cm):</label>
-                <input type="number" name="height" id="height" required>
+                <input type="number" name="height" id="height" required oninput="calculateBMI()">
 
                 <label for="weight">Weight (kg):</label>
-                <input type="number" name="weight" id="weight" required>
+                <input type="number" name="weight" id="weight" required oninput="calculateBMI()">
 
                 <label for="bmi">BMI:</label>
-                <input type="number" name="bmi" id="bmi" step="0.01" required>
+                <input type="text" name="bmi" id="bmi" readonly>
 
                 <label for="exercise">Exercise (type or duration):</label>
                 <input type="text" name="exercise" id="exercise" required>
@@ -194,9 +194,8 @@ $bodyDataHistory = $bodyDataStmt->fetchAll(PDO::FETCH_ASSOC);
 
                 <button type="submit" name="submit_body_data">Save</button>
             </form>
-
-
         </div>
+
 
         <div class="forms nutritionist-form" id="request-nutritionist-section">
             <h1>Request Nutritionist</h1>
@@ -245,12 +244,22 @@ $bodyDataHistory = $bodyDataStmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php endif; ?>
             </div>
         </div>
+
+
+
                        <!--Body Data History Table-->
-    <div class="body-data-history">
-        <h2>Body Data History</h2>
-<table>
+    <div class="body-data-history" id="body-data-history-section">
+    <h1>Manage Your Body Data</h1>
+    <div style="display: flex;">
+        <input type="text" id="searchBar" class="search-bar" placeholder="Search by ID..." onkeyup="searchTable()">
+        <button onclick="resetSearch()" class="reset-search">Reset</button>
+    </div>
+
+
+<table id="bodyDataTable">
     <thead>
         <tr>
+            <th>ID</th>
             <th>User ID</th>
             <th>First Name</th>
             <th>Last Name</th>
@@ -260,26 +269,38 @@ $bodyDataHistory = $bodyDataStmt->fetchAll(PDO::FETCH_ASSOC);
             <th>Exercise</th>
             <th>Water Consumption (liters)</th>
             <th>Date/Time Created</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
         <?php foreach ($bodyDataHistory as $data): ?>
             <tr>
+                <td><?php echo htmlspecialchars($data['id']); ?></td>
                 <td><?php echo htmlspecialchars($data['user_id']); ?></td>
                 <td><?php echo htmlspecialchars($data['first_name']); ?></td>
                 <td><?php echo htmlspecialchars($data['last_name']); ?></td>
                 <td><?php echo htmlspecialchars($data['height']); ?></td>
                 <td><?php echo htmlspecialchars($data['weight']); ?></td>
                 <td><?php echo htmlspecialchars($data['bmi']); ?></td>
-                <td><?php echo htmlspecialchars($data['exercise']); ?></td> <!-- Display exercise -->
-                <td><?php echo htmlspecialchars($data['water_consumption']); ?></td> <!-- Display water consumption -->
+                <td><?php echo htmlspecialchars($data['exercise']); ?></td>
+                <td><?php echo htmlspecialchars($data['water_consumption']); ?></td>
                 <td><?php echo htmlspecialchars($data['created_at']); ?></td>
+                <td>
+                    <form action="update_body_data.php" method="POST" style="display:inline;">
+                        <input type="hidden" name="id" value="<?php echo htmlspecialchars($data['id']); ?>">
+                        <button type="submit" class="update">Update</button>
+                    </form>
+                    <form action="delete_body_data.php" method="POST" style="display:inline;">
+                        <input type="hidden" name="id" value="<?php echo htmlspecialchars($data['id']); ?>">
+                        <button type="submit" class="delete" onclick="return confirm('Are you sure you want to delete this entry?');">Delete</button>
+                    </form>
+                </td>
             </tr>
         <?php endforeach; ?>
     </tbody>
 </table>
 
- <!-- Pagination Links for Body Data History -->
+    <!-- Pagination Links for Body Data History -->
     <div class="pagination">
         <?php if ($bodyDataPage > 1): ?>
             <a href="?body_data_page=<?php echo $bodyDataPage - 1; ?>">&laquo; Previous</a>
@@ -296,6 +317,7 @@ $bodyDataHistory = $bodyDataStmt->fetchAll(PDO::FETCH_ASSOC);
         <?php endif; ?>
     </div>
 </div>
+
     </div>
 
     <!-- User Profile Section -->
@@ -412,6 +434,50 @@ $bodyDataHistory = $bodyDataStmt->fetchAll(PDO::FETCH_ASSOC);
             }, 3000); // 3-second delay
         }
     });
+
+   function calculateBMI() {
+    const heightInput = document.getElementById('height');
+    const weightInput = document.getElementById('weight');
+    const bmiInput = document.getElementById('bmi');
+
+    const height = parseFloat(heightInput.value);
+    const weight = parseFloat(weightInput.value);
+
+    if (height > 0 && weight > 0) {
+        const bmi = weight / ((height / 100) * (height / 100));
+        bmiInput.value = bmi.toFixed(2);
+    } else {
+        bmiInput.value = '';
+    }
+}
+
+
+function searchTable() {
+    const input = document.getElementById('searchBar');
+    const filter = input.value.trim().toLowerCase(); // Trim and convert to lowercase
+    const table = document.getElementById('bodyDataTable');
+    const rows = table.getElementsByTagName('tr');
+
+    for (let i = 1; i < rows.length; i++) { // Start from 1 to skip the header row
+        const cells = rows[i].getElementsByTagName('td');
+        const idCell = cells[0]; // Get the ID cell (first column)
+        
+        // Check if the ID cell includes the filter value
+        if (idCell.innerText.trim().toLowerCase().includes(filter)) {
+            rows[i].style.display = ''; // Show the row
+        } else {
+            rows[i].style.display = 'none'; // Hide the row
+        }
+    }
+}
+
+function resetSearch() {
+    const input = document.getElementById('searchBar');
+    input.value = ''; // Clear the input field
+    searchTable(); // Show all rows
+}
+
+
     </script>
 </body>
 </html>
