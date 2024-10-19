@@ -356,7 +356,7 @@ $paymentMethodMapping = [
                     <td><?php echo htmlspecialchars($payment['first_name']); ?></td>
                     <td><?php echo htmlspecialchars($payment['last_name']); ?></td>
                     <td><?php echo htmlspecialchars($payment['amount']); ?></td>
-                    <td><?php echo htmlspecialchars($payment_method_display[$payment['payment_method']] ?? 'Unknown'); ?></td>
+                    <td><?php echo htmlspecialchars($paymentMethodMapping[$request['payment_method']] ?? 'Unknown'); ?></td>
                     <td><?php echo htmlspecialchars($payment['payment_date']); ?></td>
                     <td><?php echo htmlspecialchars(ucfirst($payment['status'])); ?></td>
                     <td>
