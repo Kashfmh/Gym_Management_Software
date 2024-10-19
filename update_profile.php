@@ -11,6 +11,15 @@ $db = 'gym_management';
 $user = 'root';
 $pass = '';
 
+$stmt = $pdo->prepare("SELECT * FROM admins WHERE id = :id");
+$stmt->execute(['id' => $_SESSION['admin_id']]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$user) {
+    echo "User not found.";
+    exit;
+}
+
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

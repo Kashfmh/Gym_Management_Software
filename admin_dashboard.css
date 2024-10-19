@@ -123,7 +123,7 @@ body {
   margin-top: 100px;
   margin: auto;
   width: 100%;
-  max-width: 1350px;
+  max-width: 1250px;
   background-color: white;
   margin-top: 50px;
   padding: 20px 30px;
@@ -142,9 +142,15 @@ body {
   color: #3a5a40;
 }
 
+.select-user-table {
+  width: 100%;
+  margin-right: auto;
+  max-width: fit-content;
+}
+
 table {
   width: 100%;
-  max-width: 1300px;
+  max-width: 1200px;
   border-collapse: collapse;
   margin-top: 20px;
   background-color: #ffffff;
@@ -173,16 +179,14 @@ tr:hover {
 table button {
   width: 100%;
   max-width: 200px;
-  margin-bottom: 10px;
   font-size: 20px;
-  margin-right: -30px;
 }
 
 #approve {
   background-color: #588157;
 }
 
-/*Pagination*/
+/* Pagination */
 .pagination {
   display: flex;
   justify-content: center;
@@ -238,6 +242,9 @@ button {
   border-radius: 5px;
   cursor: pointer;
   font-family: "Bebas Neue", sans-serif;
+  width: 100%;
+  max-width: fit-content;
+  margin: auto;
 }
 
 button:hover {
@@ -245,12 +252,10 @@ button:hover {
 }
 
 .form-request {
-  margin-top: 100px;
-  margin-left: 9%;
   width: 100%;
-  max-width: 1350px;
+  max-width: 1250px;
   background-color: white;
-  margin-top: 50px;
+  margin: auto;
   padding: 20px 30px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -267,8 +272,112 @@ button:hover {
 }
 
 .request-form-select {
-  width: 1366px;
+  width: 100%;
+  max-width: fit-content;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.payment_method {
+  width: 100%;
+  max-width: fit-content;
+  padding: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/*Payment Management Table*/
+.payment-management {
+  width: 100%;
+  max-width: 1250px;
   margin: auto;
+  background-color: white;
+  margin: auto;
+  margin-top: 60px;
+  padding: 20px 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+
+#completed,
+#failed {
+  width: 100%;
+  margin: auto;
+  margin-bottom: 10px;
+}
+
+.payment-management:hover {
+  transform: scale(1.02);
+}
+
+.payment-management h1 {
+  text-align: center;
+  color: #3a5a40;
+}
+
+.payment-management table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.payment-management th,
+.payment-management td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.payment-management th {
+  background-color: #3a5a40;
+  text-align: left;
+}
+
+.payment-management button {
+  display: flex;
+  justify-content: center;
+}
+
+.search-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.search-bar-form {
+  width: 100%;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.search-bar input[type="text"] {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px 0 0 4px; /* Rounded left corners */
+  width: 300px; /* Set a fixed width */
+  height: 20px; /* Match height with button */
+  outline: none; /* Remove outline on focus */
+}
+
+.reset-button {
+  padding: 13px 15px;
+  border: none;
+  background-color: #3a5a40;
+  color: white;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  height: 42px;
+  margin: 0;
+  margin-bottom: auto;
+}
+
+.search-bar button:hover {
+  background-color: #537c5b; /* Darker shade on hover */
 }
 
 /* Profile Section */

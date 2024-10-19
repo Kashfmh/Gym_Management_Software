@@ -28,13 +28,16 @@ if (!$user) {
     exit;
 }
 
+//set up userID
+$userId = $_SESSION['user_id'];
+
 // Pagination Variables
 $limit = 10; // Number of records per page
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1; // Current page number
 $offset = ($page - 1) * $limit; // Offset for SQL query
 
 // Fetch request history with pagination
-$stmt = $pdo->prepare("SELECT preferred_date, preferred_time, status FROM nutritionist_requests WHERE user_id = :user_id ORDER BY id DESC LIMIT :limit OFFSET :offset");
+$stmt = $pdo->prepare("SELECT id, preferred_date, preferred_time, payment_method,status FROM nutritionist_requests WHERE user_id = :user_id ORDER BY id DESC LIMIT :limit OFFSET :offset");
 $stmt->bindParam(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
 $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
 $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
@@ -52,13 +55,16 @@ $bodyDataLimit = 10; // Number of records per page
 $bodyDataPage = isset($_GET['body_data_page']) ? (int)$_GET['body_data_page'] : 1; // Current page number
 $bodyDataOffset = ($bodyDataPage - 1) * $bodyDataLimit; // Offset for SQL query
 
-// Fetch body data history with pagination
+// Fetch body data history for the logged-in user with pagination
 $bodyDataQuery = 'SELECT bdh.*, u.first_name, u.last_name 
                   FROM body_data_history bdh
                   JOIN users u ON bdh.user_id = u.id
+                  WHERE bdh.user_id = :user_id
                   ORDER BY bdh.created_at DESC
                   LIMIT :limit OFFSET :offset';
+
 $bodyDataStmt = $pdo->prepare($bodyDataQuery);
+$bodyDataStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
 $bodyDataStmt->bindParam(':limit', $bodyDataLimit, PDO::PARAM_INT);
 $bodyDataStmt->bindParam(':offset', $bodyDataOffset, PDO::PARAM_INT);
 $bodyDataStmt->execute();
@@ -107,18 +113,12 @@ if (isset($_SESSION['success_message'])) {
     unset($_SESSION['success_message']); // Clear the session variable
 }
 
-
-
-// Fetch body data history
-$bodyDataQuery = 'SELECT bdh.*, u.first_name, u.last_name 
-                  FROM body_data_history bdh
-                  JOIN users u ON bdh.user_id = u.id
-                  ORDER BY bdh.created_at DESC';
-$bodyDataStmt = $pdo->prepare($bodyDataQuery);
-$bodyDataStmt->execute();
-$bodyDataHistory = $bodyDataStmt->fetchAll(PDO::FETCH_ASSOC);
-
-
+$paymentMethodMapping = [
+    'credit_card' => 'Credit Card',
+    'cash' => 'Cash',
+    'bank_transfer' => 'Bank Transfer',
+    'e_wallet' => 'E-Wallet'
+];
 ?>
 
 <!DOCTYPE html>
@@ -176,7 +176,7 @@ $bodyDataHistory = $bodyDataStmt->fetchAll(PDO::FETCH_ASSOC);
 
         <div class="forms body-form" id="body-data-section">
             <h1>Body Data</h1>
-            <form method="POST" action="user_dashboard.php">
+            <form method="POST" action="manage_body_data.php">
                 <label for="height">Height (cm):</label>
                 <input type="number" name="height" id="height" required oninput="calculateBMI()">
 
@@ -198,35 +198,64 @@ $bodyDataHistory = $bodyDataStmt->fetchAll(PDO::FETCH_ASSOC);
 
 
         <div class="forms nutritionist-form" id="request-nutritionist-section">
-            <h1>Request Nutritionist</h1>
-            <form method="POST" action="request_nutritionist_user.php">
-                <input type="hidden" name="user_id" value="<?php echo $_SESSION['user_id']; ?>">
-                <input type="date" name="preferred_date" required>
-                <input type="time" name="preferred_time" required>
-                <button type="submit" name="request_meeting">Request Meeting</button>
-            </form>
+    <h1>Request Nutritionist</h1>
+    <div class="payment-card">
+        <p class="nutritionist-fee">Consultation Fee: RM20 per session</p>
+        
+        <h3>Select Payment Method:</h3>
+        <div class="payment-options">
+            <button type="button" class="payment-button" data-value="credit_card">Credit Card</button>
+            <button type="button" class="payment-button" data-value="e_wallet">E-Wallet</button>
+            <button type="button" class="payment-button" data-value="bank_transfer">Bank Transfer</button>
+            <button type="button" class="payment-button" data-value="cash">Cash</button>
         </div>
+        
+        <button id="request-meeting" type="button">Select Payment Type</button>
+        <p id="error-message" style="color: red; display: none;">Please select a payment method before requesting a meeting.</p>
+    </div>
+
+    <form id="meeting-form" method="POST" action="request_nutritionist_user.php" style="display: none;">
+        <input type="hidden" name="user_id" value="<?php echo $_SESSION['user_id']; ?>">
+        <input type="hidden" name="payment_method" id="payment-method" value="">
+        
+        <label for="preferred_date">Preferred Date:</label>
+        <input type="date" name="preferred_date" required>
+        
+        <label for="preferred_time">Preferred Time:</label>
+        <input type="time" name="preferred_time" required>
+        
+        <button type="submit" name="request_meeting">Request Meeting</button>
+    </form>
+</div>
 
         <div class="request-history" id="request-history-section">
             <h1>Request History</h1>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($requests as $request): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($request['preferred_date']); ?></td>
-                            <td><?php echo htmlspecialchars($request['preferred_time']); ?></td>
-                            <td><?php echo htmlspecialchars($request['status']); ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+            <div style="display: flex;">
+    <input type="text" id="searchRequestID" class="search-bar" placeholder="Search by Request ID..." onkeyup="searchRequestTable()">
+    <button onclick="resetRequestSearch()" class="reset-search">Reset</button>
+</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Request ID</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Payment Method</th>
+                <th>Request Status</th>
+            </tr>
+        </thead>
+        <tbody id="requestTableBody">
+            <?php foreach ($requests as $request): ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($request['id']); ?></td>
+                    <td><?php echo htmlspecialchars($request['preferred_date']); ?></td>
+                    <td><?php echo htmlspecialchars($request['preferred_time']); ?></td>
+                    <td><?php echo htmlspecialchars($paymentMethodMapping[$request['payment_method']] ?? 'Unknown'); ?></td>
+                    <td><?php echo htmlspecialchars($request['status']); ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
 
             <div class="pagination">
                 <?php if ($page > 1): ?>
@@ -273,6 +302,7 @@ $bodyDataHistory = $bodyDataStmt->fetchAll(PDO::FETCH_ASSOC);
         </tr>
     </thead>
     <tbody>
+        <?php if (!empty($bodyDataHistory)): ?>
         <?php foreach ($bodyDataHistory as $data): ?>
             <tr>
                 <td><?php echo htmlspecialchars($data['id']); ?></td>
@@ -297,6 +327,11 @@ $bodyDataHistory = $bodyDataStmt->fetchAll(PDO::FETCH_ASSOC);
                 </td>
             </tr>
         <?php endforeach; ?>
+        <?php else: ?>
+                <tr>
+                    <td colspan="4">No data available.</td>
+                </tr>
+            <?php endif; ?>
     </tbody>
 </table>
 
@@ -477,6 +512,58 @@ function resetSearch() {
     searchTable(); // Show all rows
 }
 
+function searchRequestTable() {
+    const input = document.getElementById('searchRequestID');
+    const filter = input.value.trim().toLowerCase();
+    const table = document.getElementById('requestTableBody');
+    const rows = table.getElementsByTagName('tr');
+
+    for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        const requestIDCell = cells[0]; // Get the Request ID cell (first column)
+
+        // Check if the Request ID cell includes the filter value
+        if (requestIDCell.innerText.trim().toLowerCase().includes(filter)) {
+            rows[i].style.display = ''; // Show the row
+        } else {
+            rows[i].style.display = 'none'; // Hide the row
+        }
+    }
+}
+
+function resetRequestSearch() {
+    const input = document.getElementById('searchRequestID');
+    input.value = ''; // Clear the input field
+    searchRequestTable(); // Show all rows
+}
+
+ document.addEventListener('DOMContentLoaded', function() {
+    const buttons = document.querySelectorAll('.payment-button');
+    const requestButton = document.getElementById('request-meeting');
+    const errorMessage = document.getElementById('error-message');
+    const meetingForm = document.getElementById('meeting-form');
+    const paymentMethodInput = document.getElementById('payment-method');
+    let selectedPayment = '';
+
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            buttons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            selectedPayment = button.getAttribute('data-value');
+            paymentMethodInput.value = selectedPayment; // Set the payment method value
+            errorMessage.style.display = 'none'; // Hide error message
+        });
+    });
+
+        requestButton.addEventListener('click', () => {
+        if (!selectedPayment) {
+            errorMessage.style.display = 'block'; // Show error message
+        } else {
+            paymentMethodInput.value = selectedPayment; // Set the payment method value
+            meetingForm.style.display = 'block'; // Show the meeting form
+        }
+    });
+});
 
     </script>
 </body>
