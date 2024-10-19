@@ -650,7 +650,7 @@ button.update:hover {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
   margin: 0;
-  outline-width: 1px;
+  outline-width: 0px;
   outline-color: #2b2d42;
 }
 

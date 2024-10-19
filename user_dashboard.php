@@ -245,6 +245,7 @@ $paymentMethodMapping = [
             </tr>
         </thead>
         <tbody id="requestTableBody">
+            <?php if (!empty($requests)): ?>
             <?php foreach ($requests as $request): ?>
                 <tr>
                     <td><?php echo htmlspecialchars($request['id']); ?></td>
@@ -254,6 +255,11 @@ $paymentMethodMapping = [
                     <td><?php echo htmlspecialchars($request['status']); ?></td>
                 </tr>
             <?php endforeach; ?>
+        <?php else: ?>
+                <tr>
+                    <td colspan="5" style="text-align: center;">No data available.</td>
+                </tr>
+            <?php endif; ?>
         </tbody>
     </table>
 
@@ -280,7 +286,7 @@ $paymentMethodMapping = [
     <div class="body-data-history" id="body-data-history-section">
     <h1>Manage Your Body Data</h1>
     <div style="display: flex;">
-        <input type="text" id="searchBar" class="search-bar" placeholder="Search by ID..." onkeyup="searchTable()">
+        <input type="text" id="searchBar" class="search-bar" placeholder="Search by Data ID..." onkeyup="searchTable()">
         <button onclick="resetSearch()" class="reset-search">Reset</button>
     </div>
 
@@ -288,10 +294,7 @@ $paymentMethodMapping = [
 <table id="bodyDataTable">
     <thead>
         <tr>
-            <th>ID</th>
-            <th>User ID</th>
-            <th>First Name</th>
-            <th>Last Name</th>
+            <th>Data ID</th>
             <th>Height (cm)</th>
             <th>Weight (kg)</th>
             <th>BMI</th>
@@ -306,9 +309,6 @@ $paymentMethodMapping = [
         <?php foreach ($bodyDataHistory as $data): ?>
             <tr>
                 <td><?php echo htmlspecialchars($data['id']); ?></td>
-                <td><?php echo htmlspecialchars($data['user_id']); ?></td>
-                <td><?php echo htmlspecialchars($data['first_name']); ?></td>
-                <td><?php echo htmlspecialchars($data['last_name']); ?></td>
                 <td><?php echo htmlspecialchars($data['height']); ?></td>
                 <td><?php echo htmlspecialchars($data['weight']); ?></td>
                 <td><?php echo htmlspecialchars($data['bmi']); ?></td>
@@ -329,7 +329,7 @@ $paymentMethodMapping = [
         <?php endforeach; ?>
         <?php else: ?>
                 <tr>
-                    <td colspan="4">No data available.</td>
+                    <td colspan="8" style="text-align: center;">No data available.</td>
                 </tr>
             <?php endif; ?>
     </tbody>

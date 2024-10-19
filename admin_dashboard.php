@@ -41,12 +41,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_meeting'])) {
     exit;
 }
 
-// Mapping array for payment methods
-$payment_method_display = [
-    'credit_card' => 'Credit Card',
-    'bank_transfer' => 'Bank Transfer',
-    'cash' => 'Cash'
-];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $request_id = $_POST['request_id'];
+    $action = $_POST['action'];
+
+    if ($action === 'approve') {
+        // Update the request status to 'approved'
+        $stmt = $pdo->prepare("UPDATE nutritionist_requests SET status = 'approved' WHERE id = ?");
+        $stmt->execute([$request_id]);
+
+        // Optionally, update the payment status as well
+        $paymentStmt = $pdo->prepare("UPDATE payments SET status = 'Completed' WHERE user_id = (SELECT user_id FROM nutritionist_requests WHERE id = ?)");
+        $paymentStmt->execute([$request_id]);
+
+        echo "Request approved successfully.";
+    } elseif ($action === 'reject') {
+        // Handle rejection logic
+        echo "Request rejected.";
+    }
+}
 
 // Pagination Variables
 $limit = 10; // Number of records per page
@@ -120,6 +133,8 @@ $paymentStmt->bindParam(':records_per_page', $records_per_page, PDO::PARAM_INT);
 $paymentStmt->execute();
 $payments = $paymentStmt->fetchAll(PDO::FETCH_ASSOC);
 
+
+
 // Define the number of records per page
 $records_per_page = 10;
 $current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -152,7 +167,7 @@ $payments = $paymentStmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch payments for approved requests
 $paymentQuery = "
-    SELECT p.*, nr.status, u.first_name, u.last_name 
+    SELECT p.*, u.first_name, u.last_name 
     FROM payments p
     JOIN nutritionist_requests nr ON p.user_id = nr.user_id
     JOIN users u ON p.user_id = u.id
@@ -161,6 +176,13 @@ $paymentQuery = "
 ";
 $paymentStmt = $pdo->query($paymentQuery);
 $payments = $paymentStmt->fetchAll(PDO::FETCH_ASSOC);
+
+$paymentMethodMapping = [
+    'credit_card' => 'Credit Card',
+    'cash' => 'Cash',
+    'bank_transfer' => 'Bank Transfer',
+    'e_wallet' => 'E-Wallet'
+];
 ?>
 
 <!DOCTYPE html>
@@ -222,6 +244,7 @@ $payments = $paymentStmt->fetchAll(PDO::FETCH_ASSOC);
             </tr>
         </thead>
         <tbody id="requestBodyDataTable">
+            <?php if (!empty($requests)): ?>
             <?php foreach ($requests as $request): ?>
                 <tr>
                     <td><?php echo htmlspecialchars($request['user_id']); ?></td>
@@ -229,7 +252,7 @@ $payments = $paymentStmt->fetchAll(PDO::FETCH_ASSOC);
                     <td><?php echo htmlspecialchars($request['last_name']); ?></td>
                     <td><?php echo htmlspecialchars($request['preferred_date']); ?></td>
                     <td><?php echo htmlspecialchars($request['preferred_time']); ?></td>
-                    <td><?php echo htmlspecialchars($payment_method_display[$request['payment_method']] ?? 'Unknown'); ?></td>
+                    <td><?php echo htmlspecialchars($paymentMethodMapping[$request['payment_method']] ?? 'Unknown'); ?></td>
                     <td><?php echo htmlspecialchars($request['status']); ?></td>
                     <td>
                         <form method="POST" action="manage_requests.php" onsubmit="return handleFormSubmit(event, '<?php echo $request['id']; ?>', 'approve')">
@@ -243,6 +266,11 @@ $payments = $paymentStmt->fetchAll(PDO::FETCH_ASSOC);
                     </td>
                 </tr>
             <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="8" style="text-align: center;">No data available.</td>
+                </tr>
+            <?php endif; ?>
         </tbody>
     </table>
 
@@ -320,24 +348,8 @@ $payments = $paymentStmt->fetchAll(PDO::FETCH_ASSOC);
             </tr>
         </thead>
         <tbody id="bodyDataTable">
-            <?php
-            // Prepare the initial SQL query
-            $paymentStmt = $pdo->prepare('
-                SELECT p.id, p.user_id, p.amount, p.payment_method, p.payment_date, p.status, u.first_name, u.last_name 
-                FROM payments p
-                JOIN users u ON p.user_id = u.id
-                JOIN nutritionist_requests nr ON p.user_id = nr.user_id
-                WHERE nr.status = "approved"
-                ORDER BY p.payment_date DESC
-            ');
-            $paymentStmt->execute();
-            $payments = $paymentStmt->fetchAll(PDO::FETCH_ASSOC);
-
-            foreach ($payments as $payment): 
-                // Format the payment date
-                $paymentDate = new DateTime($payment['payment_date']);
-                $formattedDate = $paymentDate->format('d-m-Y'); // Change format to DD-MM-YYYY
-            ?>
+            <?php if (!empty($payments)): ?>
+            <?php foreach ($payments as $payment):?>
                 <tr>
                     <td><?php echo htmlspecialchars($payment['id']); ?></td>
                     <td><?php echo htmlspecialchars($payment['user_id']); ?></td>
@@ -345,7 +357,7 @@ $payments = $paymentStmt->fetchAll(PDO::FETCH_ASSOC);
                     <td><?php echo htmlspecialchars($payment['last_name']); ?></td>
                     <td><?php echo htmlspecialchars($payment['amount']); ?></td>
                     <td><?php echo htmlspecialchars($payment_method_display[$payment['payment_method']] ?? 'Unknown'); ?></td>
-                    <td><?php echo htmlspecialchars($formattedDate); ?></td> <!-- Display formatted date -->
+                    <td><?php echo htmlspecialchars($payment['payment_date']); ?></td>
                     <td><?php echo htmlspecialchars(ucfirst($payment['status'])); ?></td>
                     <td>
                         <form method="POST" action="manage_payments.php">
@@ -356,6 +368,11 @@ $payments = $paymentStmt->fetchAll(PDO::FETCH_ASSOC);
                     </td>
                 </tr>
             <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="9" style="text-align: center;">No data available.</td>
+                </tr>
+            <?php endif; ?>
         </tbody>
     </table>
     <!-- Pagination Links -->
