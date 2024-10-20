@@ -196,7 +196,7 @@ $paymentMethodMapping = [
             if (count($upcomingRequests) > 0): 
         ?>
         <div class="notification notification-info">
-            <strong>Upcoming Nutritionist Requests:</strong>
+            <strong>Upcoming Nutritionist Meetings:</strong>
             <ul>
                 <?php
                     $counter = 1; // Initialize a counter
