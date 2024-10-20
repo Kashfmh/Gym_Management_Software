@@ -20,7 +20,7 @@ try {
 }
 
 // Check if form is submitted
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_meeting'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get form data
     $user_id = $_POST['user_id'];
     $preferred_date = $_POST['preferred_date'];
@@ -53,6 +53,8 @@ $request_id = $pdo->lastInsertId();
 $amount = 20.00; // Fixed amount for each session
     $paymentStmt = $pdo->prepare("INSERT INTO payments (user_id, amount, payment_method, payment_date, status, request_id) VALUES (?, ?, ?, ?, ?, ?)");
     $paymentStmt->execute([$user_id, $amount, $payment_method, $preferred_date, 'Pending', $request_id]);
+
+    
 
 $_SESSION['request_status'] = 'success'; // Set success status
 // Redirect to the same page to avoid resubmission

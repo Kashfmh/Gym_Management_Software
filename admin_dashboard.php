@@ -483,13 +483,11 @@ $paymentMethodMapping = [
         xhr.open('POST', 'manage_requests.php', true);
         xhr.onload = function() {
             if (xhr.status === 200) {
-                // Handle success response
-                alert(xhr.responseText); // You can customize this
-                // Optionally, you can refresh the request list here
+                
                 location.reload(); // Reload to see changes
             } else {
                 // Handle error response
-                alert('Error: ' + xhr.statusText);
+                alert('Error unable to complete action');
             }
         };
         xhr.send(formData);
