@@ -31,10 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_meeting'])) {
     // Insert payment record
     $amount = 20.00; // Fixed amount for each session
     $paymentStmt = $pdo->prepare("INSERT INTO payments (user_id, amount, payment_method, payment_date, status) VALUES (?, ?, ?, ?, ?)");
-    $paymentStmt->execute([$user_id, $amount, $payment_method, $preferred_date, 'Pending']);
-
-    // Optionally, set a success message
-    $_SESSION['message'] = 'Nutrition request and payment submitted successfully.';
+    $paymentStmt->execute([$user_id, $amount, $payment_method, $preferred_date, $status]);
     
     // Redirect to the same page to avoid resubmission
     header('Location: admin_dashboard.php');
@@ -50,10 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("UPDATE nutritionist_requests SET status = 'approved' WHERE id = ?");
         $stmt->execute([$request_id]);
 
-        // Optionally, update the payment status as well
-        $paymentStmt = $pdo->prepare("UPDATE payments SET status = 'Completed' WHERE user_id = (SELECT user_id FROM nutritionist_requests WHERE id = ?)");
-        $paymentStmt->execute([$request_id]);
-
         echo "Request approved successfully.";
     } elseif ($action === 'reject') {
         // Handle rejection logic
@@ -62,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Pagination Variables
-$limit = 10; // Number of records per page
+$limit = 5; // Number of records per page
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1; // Current page number
 $offset = ($page - 1) * $limit; // Offset for SQL query
 
@@ -362,7 +355,7 @@ $paymentMethodMapping = [
                     <td><?php echo htmlspecialchars($payment['amount']); ?></td>
                     <td><?php echo htmlspecialchars($paymentMethodMapping[$payment['payment_method']] ?? 'Unknown'); ?></td>
                     <td><?php echo htmlspecialchars($formattedDate); ?></td> <!-- Display formatted date -->
-                    <td><?php echo htmlspecialchars(ucfirst($payment['status'])); ?></td>
+                    <td><?php echo htmlspecialchars(ucfirst($payment['status'] ?: 'Pending')); ?></td>
                     <td>
                         <form method="POST" action="manage_payments.php">
                             <input type='hidden' name='payment_id' value='<?php echo $payment['id']; ?>'>

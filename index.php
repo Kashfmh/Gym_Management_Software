@@ -1,19 +1,8 @@
 <?php
 session_start();
-$host = 'localhost';
-$db = 'gym_management';
-$user = 'root';
-$pass = '';
+include 'database_connection.php';
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Could not connect to the database $db :" . $e->getMessage());
-}
-
-$admin_login_error = ""; // Initialize the error message variable
-
+// Admin Login Logic
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['admin_login'])) {
         $admin_email = $_POST['admin_email'];
@@ -34,40 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    
-}
-
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if (isset($_POST['register'])) {
-        // Registration logic
-        $first_name = $_POST['first_name'];
-        $last_name = $_POST['last_name'];
-        $email = $_POST['email'];
-        $phone = $_POST['phone'];
-        $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
-        $weight = $_POST['weight'];
-        $height = $_POST['height'];
-        $city = $_POST['city'];
-        $state = $_POST['state'];
-        $address = $_POST['address'];
-
-        $stmt = $pdo->prepare('INSERT INTO users (first_name, last_name, email, phone, password, weight, height, city, state, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-        
-        try {
-            $stmt->execute([$first_name, $last_name, $email, $phone, $password, $weight, $height, $city, $state, $address]);
-            $register_success = "Registration successful!";
-        } catch (PDOException $e) {
-            if ($e->getCode() == 23000) { // Integrity constraint violation
-                $register_error = "Email already exists.";
-            } else {
-                $register_error = "Error: " . $e->getMessage();
-            }
-        }
-    }
-
-    if (isset($_POST['login'])) {
-        // Login logic
+    //User login 
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
         $email = $_POST['email'];
         $password = $_POST['password'];
 
@@ -77,8 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if ($user && password_verify($password, $user['password'])) {
             $_SESSION['user_logged_in'] = true;
-            $_SESSION['user_id'] = $user['id']; // Corrected to store user ID
-            $_SESSION['fullname'] = $user['first_name'] . ' ' . $user['last_name']; // Construct full name
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['fullname'] = $user['first_name'] . ' ' . $user['last_name'];
             header('Location: user_dashboard.php');
             exit;
         } else {
@@ -86,53 +43,49 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    if (isset($_POST['register'])) {
-    // Registration logic
-    $first_name = $_POST['first_name'];
-    $last_name = $_POST['last_name'];
-    $email = $_POST['email'];
-    $phone = $_POST['phone'];
-    $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
-    $weight = $_POST['weight'];
-    $height = $_POST['height'];
-    $city = $_POST['city'];
-    $state = $_POST['state'];
-    $address = $_POST['address'];
+    //User registration logic
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register'])) {
+            // Collect registration data
+            $first_name = $_POST['first_name'];
+            $last_name = $_POST['last_name'];
+            $email = $_POST['email'];
+            $phone = $_POST['phone'];
+            $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
+            $weight = $_POST['weight'];
+            $height = $_POST['height'];
+            $city = $_POST['city'];
+            $state = $_POST['state'];
+            $address = $_POST['address'];
 
-    $stmt = $pdo->prepare('INSERT INTO users (first_name, last_name, email, phone, password, weight, height, city, state, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-    
-    try {
-        $stmt->execute([$first_name, $last_name, $email, $phone, $password, $weight, $height, $city, $state, $address]);
-        
-        // Get the ID of the newly registered user
-        $user_id = $pdo->lastInsertId();
+            // Check for existing email or phone
+            $stmt = $pdo->prepare('SELECT * FROM users WHERE email = ? OR phone = ?');
+            $stmt->execute([$email, $phone]);
+            $existing_user = $stmt->fetch();
 
-        // Set session variables
-        $_SESSION['user_logged_in'] = true;
-        $_SESSION['user_id'] = $user_id;
-        $_SESSION['fullname'] = $first_name . ' ' . $last_name;
-
-        // Redirect to the dashboard
-        header('Location: user_dashboard.php');
-        exit;
-    } catch (PDOException $e) {
-        // Check for unique constraint violations
-        if ($e->getCode() == 23000) { // Integrity constraint violation
-            if (strpos($e->getMessage(), 'email') !== false) {
-                $register_error = "Email already exists.";
-            } elseif (strpos($e->getMessage(), 'phone') !== false) {
-                $register_error = "Phone number already exists.";
+            if ($existing_user) {
+                if ($existing_user['email'] === $email) {
+                    $register_error = "Email already exists.";
+                }
+                if ($existing_user['phone'] === $phone) {
+                    $register_error = "Phone number already exists.";
+                }
+            } else {
+                // Proceed with registration
+                $stmt = $pdo->prepare('INSERT INTO users (first_name, last_name, email, phone, password, weight, height, city, state, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+                
+                try {
+                    $stmt->execute([$first_name, $last_name, $email, $phone, $password, $weight, $height, $city, $state, $address]);
+                    $_SESSION['user_logged_in'] = true;
+                    $_SESSION['user_id'] = $pdo->lastInsertId();
+                    $_SESSION['fullname'] = $first_name . ' ' . $last_name;
+                    $register_success = "Registration successful! You can now log in.";
+                    header('Location: login.php'); // Redirect to login page
+                    exit;
+                } catch (PDOException $e) {
+                    $register_error = "Error: " . $e->getMessage();
+                }
             }
-        } else {
-            $register_error = "Error: " . $e->getMessage();
-        }
-        
-        // Set an anchor to scroll to the registration form
-        $register_anchor = "#register-form";
     }
-}
-
-
 }
 ?>
 
@@ -227,7 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <div class="input-group">
                         <input type="password" name="password" class="input-field" placeholder="Password" required />
                     </div>
-                    <a href="#" class="forgot-password">Forgot password?</a>
+                    <a href="forgot_password.php" class="forgot-password">Forgot password?</a>
                     <button type="submit" name="login" class="login-button">Login</button>
                 </form>
                 <div class="signup-text">
@@ -272,6 +225,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
             <div class="input-group">
                 <textarea name="address" class="input-field" placeholder="Address" required></textarea>
+            </div>
+            <div class="input-group">
+                <input type="text" name="unique_code" placeholder="Key in your unique code, MUST REMEMBER" required>
             </div>
             <button type="submit" name="register" class="register-button">Register</button>
         </form>

@@ -113,6 +113,7 @@ if (isset($_SESSION['success_message'])) {
     unset($_SESSION['success_message']); // Clear the session variable
 }
 
+
 $paymentMethodMapping = [
     'credit_card' => 'Credit Card',
     'cash' => 'Cash',
@@ -234,34 +235,47 @@ $paymentMethodMapping = [
     <input type="text" id="searchRequestID" class="search-bar" placeholder="Search by Request ID..." onkeyup="searchRequestTable()">
     <button onclick="resetRequestSearch()" class="reset-search">Reset</button>
 </div>
-    <table>
-        <thead>
-            <tr>
-                <th>Request ID</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Payment Method</th>
-                <th>Request Status</th>
-            </tr>
-        </thead>
-        <tbody id="requestTableBody">
-            <?php if (!empty($requests)): ?>
+    <?php
+// Fetch requests and payment statuses outside the loop
+$sql = "SELECT r.id, r.preferred_date, r.preferred_time, r.payment_method, r.status, p.status AS payment_status
+        FROM nutritionist_requests r
+        LEFT JOIN payments p ON r.id = p.request_id";
+$stmt = $pdo->prepare($sql);
+$stmt->execute();
+$requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
+<table>
+    <thead>
+        <tr>
+            <th>Request ID</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Payment Method</th>
+            <th>Request Status</th>
+            <th>Payment Status</th>
+        </tr>
+    </thead>
+    <tbody id="requestTableBody">
+        <?php if (!empty($requests)): ?>
             <?php foreach ($requests as $request): ?>
                 <tr>
                     <td><?php echo htmlspecialchars($request['id']); ?></td>
                     <td><?php echo htmlspecialchars($request['preferred_date']); ?></td>
                     <td><?php echo htmlspecialchars($request['preferred_time']); ?></td>
                     <td><?php echo htmlspecialchars($paymentMethodMapping[$request['payment_method']] ?? 'Unknown'); ?></td>
-                    <td><?php echo htmlspecialchars($request['status']); ?></td>
+                    <td><?php echo htmlspecialchars($request['status'] ?: 'Pending'); ?></td>
+                    <td><?php echo htmlspecialchars(ucfirst($request['payment_status'] ?: 'Pending')); ?></td>
                 </tr>
             <?php endforeach; ?>
         <?php else: ?>
-                <tr>
-                    <td colspan="5" style="text-align: center;">No data available.</td>
-                </tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
+            <tr>
+                <td colspan="6" style="text-align: center;">No data available.</td>
+            </tr>
+        <?php endif; ?>
+    </tbody>
+</table>
+
 
             <div class="pagination">
                 <?php if ($page > 1): ?>
@@ -386,7 +400,7 @@ $paymentMethodMapping = [
 
     <!-- Edit Profile Form -->
     <div id="edit-profile-form" style="display: none;">
-        <form method="POST" action="update_profile.php">
+        <form method="POST" action="update_user_profile.php">
             <strong>Name:</strong>
             <input type="text" name="first_name" value="<?php echo htmlspecialchars($user['first_name']); ?>" required />
             <strong>Last Name:</strong>
@@ -469,6 +483,15 @@ $paymentMethodMapping = [
             }, 3000); // 3-second delay
         }
     });
+
+     window.onload = function() {
+        const message = document.getElementById('flash-message');
+        if (update_profile_message) {
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 3000); // 3000 milliseconds = 3 seconds
+        }
+    };
 
    function calculateBMI() {
     const heightInput = document.getElementById('height');

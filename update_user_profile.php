@@ -11,20 +11,21 @@ $db = 'gym_management';
 $user = 'root';
 $pass = '';
 
-$stmt = $pdo->prepare("SELECT * FROM admins WHERE id = :id");
-$stmt->execute(['id' => $_SESSION['admin_id']]);
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if (!$user) {
-    echo "User not found.";
-    exit;
-}
-
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("Could not connect to the database $db :" . $e->getMessage());
+}
+
+// Fetch user details
+$stmt = $pdo->prepare("SELECT * FROM users WHERE id = :id");
+$stmt->execute(['id' => $_SESSION['user_id']]); // Use user_id from session
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$user) {
+    echo "User not found.";
+    exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -40,18 +41,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $address = $_POST['address'];
 
     $stmt = $pdo->prepare("UPDATE users SET first_name = :first_name, last_name = :last_name, email = :email, phone = :phone, weight = :weight, height = :height, city = :city, state = :state, address = :address WHERE id = :id");
-    $stmt->execute([
-        'first_name' => $first_name,
-        'last_name' => $last_name,
-        'email' => $email,
-        'phone' => $phone,
-        'weight' => $weight,
-        'height' => $height,
-        'city' => $city,
-        'state' => $state,
-        'address' => $address,
-        'id' => $user_id
-    ]);
+    
+    try {
+        $stmt->execute([
+            'first_name' => $first_name,
+            'last_name' => $last_name,
+            'email' => $email,
+            'phone' => $phone,
+            'weight' => $weight,
+            'height' => $height,
+            'city' => $city,
+            'state' => $state,
+            'address' => $address,
+            'id' => $user_id
+        ]);
+
+        $_SESSION['success_message'] = "Profile updated successfully!"; // Success message
+    } catch (PDOException $e) {
+        $_SESSION['success_message'] = "Error updating profile: " . $e->getMessage(); // Error message
+    }
 
     header('Location: user_dashboard.php'); // Redirect back to the dashboard
     exit;
