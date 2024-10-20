@@ -175,6 +175,45 @@ $paymentMethodMapping = [
             <?php endif; ?>
         </div>
 
+         <!-- Display upcoming requests alert -->
+          <div class="inbox">
+            <h1>Inbox</h1>
+        <?php
+            $upcomingRequestsStmt = $pdo->prepare
+            ("
+                SELECT id, preferred_date, preferred_time 
+                FROM nutritionist_requests 
+                WHERE user_id = :user_id 
+                AND preferred_date >= CURDATE() 
+                AND (preferred_date > CURDATE() OR (preferred_date = CURDATE() AND preferred_time > CURRENT_TIME()))
+                AND preferred_date <= DATE_ADD(CURDATE(), INTERVAL 3 DAY)
+                AND status = 'approved'
+                ORDER BY preferred_date ASC
+            ");
+            $upcomingRequestsStmt->execute(['user_id' => $userId]);
+            $upcomingRequests = $upcomingRequestsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if (count($upcomingRequests) > 0): 
+        ?>
+        <div class="notification notification-info">
+            <strong>Upcoming Nutritionist Requests:</strong>
+            <ul>
+                <?php
+                    $counter = 1; // Initialize a counter
+                    foreach ($upcomingRequests as $request):
+                ?>
+                    <li id="request-<?php echo $request['id']; ?>">
+                        <?php echo $counter++; ?>.
+                        Date: <?php echo htmlspecialchars($request['preferred_date']); ?>, 
+                        Time: <?php echo htmlspecialchars($request['preferred_time']); ?>
+                        <button onclick="markAsRead(<?php echo $request['id']; ?>)">Mark as Read</button>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+        <?php endif; ?>
+        </div>
+
         <div class="forms body-form" id="body-data-section">
             <h1>Body Data</h1>
             <form method="POST" action="manage_body_data.php">
@@ -587,6 +626,14 @@ function resetRequestSearch() {
         }
     });
 });
+
+function markAsRead(requestId) {
+    // Remove the notification from the list
+    var requestItem = document.getElementById('request-' + requestId);
+    if (requestItem) {
+        requestItem.style.display = 'none';
+    }
+}
 
     </script>
 </body>
