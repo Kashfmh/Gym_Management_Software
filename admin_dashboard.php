@@ -167,11 +167,11 @@ $payments = $paymentStmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch payments for approved requests
 $paymentQuery = "
-    SELECT p.*, u.first_name, u.last_name 
+    SELECT p.*, nr.id AS request_id, u.first_name, u.last_name 
     FROM payments p
-    JOIN nutritionist_requests nr ON p.user_id = nr.user_id
+    JOIN nutritionist_requests nr ON p.request_id = nr.id
     JOIN users u ON p.user_id = u.id
-    WHERE nr.status = 'approved'
+    WHERE nr.status = 'Approved'
     ORDER BY p.payment_date DESC
 ";
 $paymentStmt = $pdo->query($paymentQuery);
@@ -294,7 +294,7 @@ $paymentMethodMapping = [
 
         <!-- Admin Nutrition Request -->
         <div class="form-request" id="request-nutritionist-section">
-            <form method="POST" action="admin_dashboard.php">
+            <form method="POST" action="request_nutritionist_admin.php">
                 <h1>Nutrition Request Form</h1>
                 <label for="user_id">Select User:</label>
                 <select class="request-form-select" name="user_id" required>
@@ -349,15 +349,19 @@ $paymentMethodMapping = [
         </thead>
         <tbody id="bodyDataTable">
             <?php if (!empty($payments)): ?>
-            <?php foreach ($payments as $payment):?>
+            <?php foreach ($payments as $payment): 
+                // Format the payment date
+                $paymentDate = new DateTime($payment['payment_date']);
+                $formattedDate = $paymentDate->format('d-m-Y'); // Change format to DD-MM-YYYY
+            ?>
                 <tr>
                     <td><?php echo htmlspecialchars($payment['id']); ?></td>
                     <td><?php echo htmlspecialchars($payment['user_id']); ?></td>
                     <td><?php echo htmlspecialchars($payment['first_name']); ?></td>
                     <td><?php echo htmlspecialchars($payment['last_name']); ?></td>
                     <td><?php echo htmlspecialchars($payment['amount']); ?></td>
-                    <td><?php echo htmlspecialchars($paymentMethodMapping[$request['payment_method']] ?? 'Unknown'); ?></td>
-                    <td><?php echo htmlspecialchars($payment['payment_date']); ?></td>
+                    <td><?php echo htmlspecialchars($paymentMethodMapping[$payment['payment_method']] ?? 'Unknown'); ?></td>
+                    <td><?php echo htmlspecialchars($formattedDate); ?></td> <!-- Display formatted date -->
                     <td><?php echo htmlspecialchars(ucfirst($payment['status'])); ?></td>
                     <td>
                         <form method="POST" action="manage_payments.php">

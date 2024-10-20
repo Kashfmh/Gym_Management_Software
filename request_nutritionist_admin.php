@@ -20,34 +20,44 @@ try {
 }
 
 // Check if form is submitted
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_meeting'])) {
+    // Get form data
     $user_id = $_POST['user_id'];
     $preferred_date = $_POST['preferred_date'];
     $preferred_time = $_POST['preferred_time'];
-    $payment_method = $_POST['payment_method']; // Ensure this is being set
+    $payment_method = $_POST['payment_method'];
+
 
     // Get today's date
     $today = date('Y-m-d');
 
     // Validate the preferred date
-    if ($preferred_date < $today) {
+    if ($preferred_date <= $today) {
         $_SESSION['request_status'] = 'error'; // Set error status
         header('Location: admin_dashboard.php'); // Redirect back to admin dashboard
         exit;
     }
 
-    // Insert the request into the database if the date is valid
-    $stmt = $pdo->prepare("INSERT INTO nutritionist_requests (user_id, preferred_date, preferred_time, payment_method, status) VALUES (:user_id, :preferred_date, :preferred_time, :payment_method, 'pending')");
-    $stmt->execute([
-        'user_id' => $user_id,
-        'preferred_date' => $preferred_date,
-        'preferred_time' => $preferred_time,
-        'payment_method' => $payment_method // Store the actual value
-    ]);
 
-    $_SESSION['request_status'] = 'success'; // Set success status
-    header('Location: admin_dashboard.php'); // Redirect back to admin dashboard
-    exit;
+
+// Insert into nutritionist_requests table
+    $stmt = $pdo->prepare("INSERT INTO nutritionist_requests (user_id, preferred_date, preferred_time, payment_method) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$user_id, $preferred_date, $preferred_time, $payment_method]);
+
+    
+// Capture the last inserted request_id
+$request_id = $pdo->lastInsertId(); 
+
+
+// Insert payment record with the captured request_id
+$amount = 20.00; // Fixed amount for each session
+    $paymentStmt = $pdo->prepare("INSERT INTO payments (user_id, amount, payment_method, payment_date, status, request_id) VALUES (?, ?, ?, ?, ?, ?)");
+    $paymentStmt->execute([$user_id, $amount, $payment_method, $preferred_date, 'Pending', $request_id]);
+
+$_SESSION['request_status'] = 'success'; // Set success status
+// Redirect to the same page to avoid resubmission
+header('Location: admin_dashboard.php');
+exit;
+
 }
-
 ?>

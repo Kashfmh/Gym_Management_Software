@@ -30,23 +30,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $today = date('Y-m-d');
 
     // Validate the preferred date
-    if ($preferred_date < $today) {
+    if ($preferred_date <= $today) {
         $_SESSION['request_status'] = 'error'; // Set error status
         header('Location: user_dashboard.php'); // Redirect back to user dashboard
         exit;
     }
 
-    // Insert the request into the database
-    $stmt = $pdo->prepare("INSERT INTO nutritionist_requests (user_id, payment_method, preferred_date, preferred_time, status) VALUES (:user_id, :payment_method, :preferred_date, :preferred_time, 'pending')");
-    $stmt->execute([
-        'user_id' => $user_id,
-        'payment_method' => $payment_method, // Include payment method
-        'preferred_date' => $preferred_date,
-        'preferred_time' => $preferred_time
-    ]);
+    
 
-    $_SESSION['request_status'] = 'success'; // Set success status
-    header('Location: user_dashboard.php'); // Redirect back to user dashboard
-    exit;
+    // Insert the request into the database
+    $stmt = $pdo->prepare("INSERT INTO nutritionist_requests (user_id, preferred_date, preferred_time, payment_method) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$user_id, $preferred_date, $preferred_time, $payment_method]);
+
+    $request_id = $pdo->lastInsertId(); // Get the last inserted ID for request_id
+
+    if (!$request_id) {
+    die('Failed to retrieve request ID.');
+}
+
+
+    // Insert payment record with the captured request_id
+$amount = 20.00; // Fixed amount for each session
+$paymentStmt = $pdo->prepare("INSERT INTO payments (user_id, amount, payment_method, payment_date, status, request_id) VALUES (?, ?, ?, ?, ?, ?)");
+$paymentStmt->execute([$user_id, $amount, $payment_method, $preferred_date, 'Pending', $request_id]);
+
+
+// Redirect to the same page to avoid resubmission
+$_SESSION['request_status'] = 'success'; // Set success status
+header('Location: user_dashboard.php');
+exit;
 }
 ?>
