@@ -2,27 +2,6 @@
 session_start();
 include 'database_connection.php';
 
-// Admin Login Logic
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if (isset($_POST['admin_login'])) {
-        $admin_email = $_POST['admin_email'];
-        $admin_password = $_POST['admin_password'];
-
-        // Fetch admin details
-        $stmt = $pdo->prepare('SELECT * FROM admins WHERE email = ?');
-        $stmt->execute([$admin_email]);
-        $admin = $stmt->fetch();
-
-        if ($admin && password_verify($admin_password, $admin['password'])) {
-            $_SESSION['admin_logged_in'] = true;
-            $_SESSION['admin_id'] = $admin['id'];
-            header('Location: admin_dashboard.php'); // Redirect to admin dashboard
-            exit;
-        } else {
-            $admin_login_error = "Invalid email or password.";
-        }
-    }
-
     //User login 
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
         $email = $_POST['email'];
@@ -86,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
             }
     }
-}
+
 ?>
 
 
@@ -101,8 +80,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Protest+Strike&display=swap" rel="stylesheet" />
-    <script src="script.js"></script>
 </head>
+<script>
+        function showRegisterForm() {
+  event.preventDefault();
+  document.getElementById("login-form").style.display = "none";
+  document.getElementById("register-form").style.display = "block";
+}
+
+function showLoginForm() {
+  event.preventDefault();
+  document.getElementById("register-form").style.display = "none";
+  document.getElementById("login-form").style.display = "block";
+}
+
+function goBackToHomepage() {
+  location.reload();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const registerForm = document.getElementById("register-form");
+  if (registerForm && window.location.hash === "#register-form") {
+    registerForm.scrollIntoView();
+  }
+});
+    </script>
 <body>
     <div class="header">
         <div class="left-section">
@@ -119,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
         <div class="right-section">
             <div class="admin-btn">
-                <button id="admin-button" onclick="showAdminLoginForm()">Admin</button>
+                <button id="admin-button"><a href="admin.php">Admin</a></button>
             </div>
         </div>
     </div>
@@ -255,7 +257,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
             <div class="footer-section contact">
                 <h3>Contact Us</h3>
-                <p>Email: huanfitnesspals@gmail.com</p>
+                <p>Email: huanfitnesscentre@gmail.com</p>
                 <p>Phone: +60 1123776041</p>
             </div>
             <div class="footer-section social">

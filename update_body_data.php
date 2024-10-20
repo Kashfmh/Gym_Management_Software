@@ -66,7 +66,7 @@ if (isset($_POST['id'])) {
 <head>
     <meta charset="UTF-8">
     <title>Update Body Data</title>
-    <link rel="stylesheet" href="update_body_data.css">
+    <link rel="stylesheet" href="styles/update_body_data.css">
 </head>
 <body>
     <h1>Update Body Data</h1>

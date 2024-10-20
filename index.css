@@ -280,12 +280,6 @@ body {
   margin-bottom: 50px;
 }
 
-.admin-txt {
-  color: #a3b18a;
-  font-size: 38px;
-  font-family: "Bebas Neue";
-}
-
 .login-box {
   background-color: #8d99ae;
   width: 600px;
@@ -293,20 +287,6 @@ body {
   border-radius: 10px;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   text-align: center;
-}
-
-.login-box-admin {
-  background-color: #344e41;
-  width: 600px;
-  padding: 50px;
-  border-radius: 10px;
-  box-shadow: 0 6px 12px rgba(0, 1, 1, 0.35);
-  text-align: center;
-  transition: transform 0.3s;
-}
-
-.login-box-admin:hover {
-  transform: scale(1.02);
 }
 
 .login-text {
@@ -371,29 +351,12 @@ body {
   margin-top: 20px;
 }
 
-.login-button-admin {
-  width: 100%;
-  margin-top: 20px;
-  padding: 12px;
-  background-color: #a3b18a;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 18px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
 .login-button:hover {
   background-color: #344055;
 }
 
 .register-button:hover {
   background-color: #344055;
-}
-
-.login-button-admin:hover {
-  background-color: #7a8568;
 }
 
 .signup-text {
@@ -416,6 +379,11 @@ body {
 .signup-text a {
   color: #ef233c;
   text-decoration: none;
+}
+
+a {
+  text-decoration: none;
+  color: whitesmoke;
 }
 
 #services-section {

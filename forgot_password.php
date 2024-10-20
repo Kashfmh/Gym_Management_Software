@@ -11,16 +11,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user) {
+
         // Generate a unique token
         $token = bin2hex(random_bytes(50));
         $stmt = $pdo->prepare("INSERT INTO password_resets (email, token) VALUES (:email, :token)");
         $stmt->execute(['email' => $email, 'token' => $token]);
 
-        // Send email (Make sure to configure mail settings)
+        // Send email
         $resetLink = "http://localhost/phpnewassignment/reset_password.php?token=" . $token;
-        mail($email, "Password Reset Link", "Hello fellow member, Here is the password reset link you requested! Please click the link to continue with your password reset: " . $resetLink);
 
+        $headers = "From: no-reply@yourdomain.com\r\n";
+        $headers .= "Reply-To: no-reply@yourdomain.com\r\n";
+        $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+
+         // Attempt to send the email and check the result
+    if (mail($email, "Password Reset Link", "Hello fellow member,\n\nHere is the password reset link you requested! Please click the link to continue with your password reset:\n" . $resetLink, $headers)) {
         $_SESSION['message'] = "A password reset link has been sent to your email.";
+    } else {
+        $_SESSION['error'] = "Failed to send the reset email. Please try again later.";
+    }
         header('Location: forgot_password.php');
         exit;
     } else {
@@ -34,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Forgot Password</title>
-    <link rel="stylesheet" href="forgot_password.css">
+    <link rel="stylesheet" href="styles/forgot_password.css">
 </head>
 <body>
     <div class="main">

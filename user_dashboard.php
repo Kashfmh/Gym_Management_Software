@@ -127,11 +127,11 @@ $paymentMethodMapping = [
 <head>
     <meta charset="UTF-8">
     <title>User Dashboard</title>
-    <link rel="stylesheet" href="user_dashboard.css" />
+    <link rel="stylesheet" href="styles/user_dashboard.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
-    <script src="script.js" defer></script>
+    
 </head>
 <body>
     <div class="header">

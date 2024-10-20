@@ -183,7 +183,7 @@ $paymentMethodMapping = [
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="admin_dashboard.css" />
+    <link rel="stylesheet" href="styles/admin_dashboard.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
@@ -313,8 +313,9 @@ $paymentMethodMapping = [
                     <option value="bank_transfer">Bank Transfer</option>
                     <option value="cash">Cash</option>
                 </select>
-
+                <div>
                 <button id="Nutrireq" type="submit" name="request_meeting">Request Meeting</button>
+                </div>
             </form>
         </div>
 
