@@ -149,9 +149,10 @@ document.addEventListener("DOMContentLoaded", function () {
             <p>Receive expert dietary advice.</p>
         </div>
         <div class="service-card">
-            <h3>Much More</h3>
-            <p>Explore a variety of fitness services.</p>
+            <h3>Sign Up for Classes</h3>
+            <p>Join our engaging classes to enhance your fitness journey!</p>
         </div>
+
     </div>
 
     <div class="pricing" id="pricing-section">

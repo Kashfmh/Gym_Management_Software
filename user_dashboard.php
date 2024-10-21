@@ -107,9 +107,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['classID'])) {
     $paymentMethod = trim($_POST['paymentMethod'] ?? '');
     $start_date = trim($_POST['start_date'] ?? '');
     $end_date = trim($_POST['end_date'] ?? '');
+    $first_name = trim($_POST['first_name'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $phone = trim($_POST['phone'] ?? '');
 
     // Validation checks
-    if (empty($classID) || empty($price) || empty($paymentMethod) || empty($start_date) || empty($end_date)) {
+    if (empty($classID) || empty($price) || empty($paymentMethod) || empty($start_date) || empty($end_date) || empty($first_name) || empty($email) || empty($phone)) {
         $_SESSION['success_message'] = "Please fill in all required fields.";
     } elseif (!is_numeric($price) || $price <= 0) {
         $_SESSION['success_message'] = "Price must be a positive number.";
@@ -126,9 +129,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['classID'])) {
         if ($existingCount > 0) {
             $_SESSION['success_message'] = "You are already signed up for this class during the selected dates.";
         } else {
-            // Prepare SQL statement for signup
-            $stmt = $pdo->prepare("INSERT INTO fitness_classes (classID, user_id, price, paymentMethod, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?)");
-            if ($stmt->execute([$classID, $userId, $price, $paymentMethod, $start_date, $end_date])) {
+            // Prepare SQL statement for signup, including first_name, email, and phone
+            $stmt = $pdo->prepare("INSERT INTO fitness_classes (classID, user_id, price, paymentMethod, start_date, end_date, first_name, email, phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            if ($stmt->execute([$classID, $userId, $price, $paymentMethod, $start_date, $end_date, $first_name, $email, $phone])) {
                 $_SESSION['success_message'] = "Thank you for signing up! You have successfully registered for the " . htmlspecialchars($classID) . " class.";
             } else {
                 $_SESSION['success_message'] = "There was an error processing your signup. Please try again.";
@@ -151,6 +154,7 @@ $paymentMethodMapping = [
     'e_wallet' => 'E-Wallet'
 ];
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -242,7 +246,7 @@ $paymentMethodMapping = [
         </div>
 
 
-            <div class="sign-up-classes">
+    <div class="sign-up-classes">
     <h1>Sign Up for Our Fitness Classes</h1>
     <div class="card-container">
         <div class="card">
@@ -286,26 +290,24 @@ $paymentMethodMapping = [
 
             <h3>Select Payment Method:</h3>
             <div class="payment-options">
-                <button type="button" class="payment-button" data-value="credit_card">Credit Card</button>
-                <button type="button" class="payment-button" data-value="e_wallet">E-Wallet</button>
-                <button type="button" class="payment-button" data-value="bank_transfer">Bank Transfer</button>
-                <button type="button" class="payment-button" data-value="cash">Cash</button>
+                <button type="button" class="payment-button" data-value="credit_card" onclick="selectPaymentMethod('credit_card')">Credit Card</button>
+                <button type="button" class="payment-button" data-value="e_wallet" onclick="selectPaymentMethod('e_wallet')">E-Wallet</button>
+                <button type="button" class="payment-button" data-value="bank_transfer" onclick="selectPaymentMethod('bank_transfer')">Bank Transfer</button>
+                <button type="button" class="payment-button" data-value="cash" onclick="selectPaymentMethod('cash')">Cash</button>
             </div>
 
             <div id="additionalFields" style="display: none;">
                 <label for="start_date">Start Date</label>
-                <input type="date" name="start_date" required />
+                <input type="date" name="start_date" id="start_date" required onchange="setEndDate()" />
 
                 <label for="end_date">End Date</label>
-                <input type="date" name="end_date" required />
+                <input type="date" name="end_date" id="end_date" readonly required />
             </div>
 
-            <button type="submit" style="display: none;" id="submitButton">Submit</button>
+            <button type="submit" id="submitButton">Submit</button>
         </form>
     </div>
 </div>
-
-
 
 
         <!--Body Data Form-->
@@ -724,20 +726,6 @@ function resetRequestSearch() {
     });
 });
 
-function selectClass(className, price) {
-    // Show the signup form section
-    document.getElementById('signupFormSection').style.display = 'block';
-
-    // Display the selected class message
-    const selectedClassMessage = document.getElementById('selectedClassMessage');
-    selectedClassMessage.innerHTML = `You have selected the ${className} class.`;
-    selectedClassMessage.style.display = 'block';
-
-    // Set hidden fields for class ID and price
-    document.getElementById('classID').value = className;
-    document.getElementById('price').value = price;
-}
-
 function resetForm() {
     // Reset the form fields
     document.getElementById("signupForm").reset();
@@ -775,6 +763,26 @@ document.getElementById("signupForm").addEventListener("submit", function(event)
         alert("Please enter a valid phone number.");
     }
 });
+
+    function selectClass(className, price) {
+        document.getElementById('classID').value = className;
+        document.getElementById('price').value = price;
+        document.getElementById('selectedClassMessage').innerText = `You have selected the ${className} class for RM${price}.`;
+        document.getElementById('selectedClassMessage').style.display = 'block';
+        document.getElementById('signupFormSection').style.display = 'block';
+        document.getElementById('additionalFields').style.display = 'block';
+    }
+
+    function selectPaymentMethod(method) {
+        document.getElementById('paymentMethod').value = method;
+    }
+
+    function setEndDate() {
+        const startDate = new Date(document.getElementById('start_date').value);
+        const endDate = new Date(startDate);
+        endDate.setMonth(startDate.getMonth() + 1); // Set end date to one month later
+        document.getElementById('end_date').value = endDate.toISOString().split('T')[0];
+    }
     </script>
 </body>
 </html>
