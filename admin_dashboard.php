@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Pagination Variables
-$limit = 5; // Number of records per page
+$limit = 10; // Number of records per page
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1; // Current page number
 $offset = ($page - 1) * $limit; // Offset for SQL query
 
@@ -327,6 +327,19 @@ $paymentMethodMapping = [
         <input type="text" id="searchBar" placeholder="Search by Payment ID or Name..." onkeyup="searchTable()" />
         <button class="reset-button" type="button" onclick="resetSearch()">Reset</button>
     </div>
+    <?php 
+        $paymentsQuery = 'SELECT p.*, u.first_name, u.last_name 
+                  FROM payments p
+                  JOIN users u ON p.user_id = u.id
+                  ORDER BY p.id DESC 
+                  LIMIT :limit OFFSET :offset';
+
+        $paymentsStmt = $pdo->prepare($paymentsQuery);
+        $paymentsStmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $paymentsStmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+        $paymentsStmt->execute();
+        $payments = $paymentsStmt->fetchAll(PDO::FETCH_ASSOC);
+    ?>
     <table>
         <thead>
             <tr>
@@ -373,22 +386,21 @@ $paymentMethodMapping = [
             <?php endif; ?>
         </tbody>
     </table>
-    <!-- Pagination Links -->
     <div class="pagination">
-        <?php if ($current_page > 1): ?>
-            <a href="?page=<?php echo $current_page - 1; ?>">« Previous</a>
-        <?php endif; ?>
+    <?php if ($page > 1): ?>
+        <a href="?page=<?php echo $page - 1; ?>">« Previous</a>
+    <?php endif; ?>
 
-        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-            <a href="?page=<?php echo $i; ?>" class="<?php if ($i == $current_page) echo 'active'; ?>">
-                <?php echo $i; ?>
-            </a>
-        <?php endfor; ?>
+    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+        <a href="?page=<?php echo $i; ?>" class="<?php if ($i == $page) echo 'active'; ?>">
+            <?php echo $i; ?>
+        </a>
+    <?php endfor; ?>
 
-        <?php if ($current_page < $total_pages): ?>
-            <a href="?page=<?php echo $current_page + 1; ?>">Next »</a>
-        <?php endif; ?>
-    </div>
+    <?php if ($page < $total_pages): ?>
+        <a href="?page=<?php echo $page + 1; ?>">Next »</a>
+    <?php endif; ?>
+</div>
 </div>
 
     </div> <!--End of main-->

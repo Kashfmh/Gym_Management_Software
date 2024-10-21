@@ -26,19 +26,26 @@ $limit = 10; // Number of records per page
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1; // Current page number
 $offset = ($page - 1) * $limit; // Offset for SQL query
 
-// Fetch request history with pagination
-$stmt = $pdo->prepare("SELECT id, preferred_date, preferred_time, payment_method, status FROM nutritionist_requests WHERE user_id = :user_id ORDER BY id DESC LIMIT :limit OFFSET :offset");
-$stmt->bindParam(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
+$stmt = $pdo->prepare("SELECT r.id, r.preferred_date, r.preferred_time, r.payment_method, r.status, p.status AS payment_status 
+                        FROM nutritionist_requests r
+                        LEFT JOIN payments p ON r.id = p.request_id 
+                        WHERE r.user_id = :user_id 
+                        ORDER BY r.id DESC 
+                        LIMIT :limit OFFSET :offset");
+$stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
 $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
 $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
 $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+
 // Count total requests for pagination
 $countStmt = $pdo->prepare("SELECT COUNT(*) FROM nutritionist_requests WHERE user_id = :user_id");
-$countStmt->execute(['user_id' => $_SESSION['user_id']]);
+$countStmt->execute(['user_id' => $userId]);
 $totalRequests = $countStmt->fetchColumn();
+
 $totalPages = ceil($totalRequests / $limit); // Total number of pages
+
 
 // Fetch body data history for the logged-in user with pagination
 $bodyDataLimit = 10; // Number of records per page
@@ -49,7 +56,7 @@ $bodyDataQuery = 'SELECT bdh.*, u.first_name, u.last_name
                   FROM body_data_history bdh
                   JOIN users u ON bdh.user_id = u.id
                   WHERE bdh.user_id = :user_id
-                  ORDER BY bdh.created_at DESC
+                  ORDER BY id DESC
                   LIMIT :limit OFFSET :offset';
 
 $bodyDataStmt = $pdo->prepare($bodyDataQuery);
@@ -366,71 +373,78 @@ $paymentMethodMapping = [
 </div>
 
 
-                    <!--Request History table-->
-        <div class="request-history" id="request-history-section">
-            <h1>Request History</h1>
-            <div style="display: flex;">
-    <input type="text" id="searchRequestID" class="search-bar" placeholder="Search by Request ID..." onkeyup="searchRequestTable()">
-    <button onclick="resetRequestSearch()" class="reset-search">Reset</button>
-</div>
+<div class="request-history" id="request-history-section">
+    <h1>Request History</h1>
+    <div style="display: flex;">
+        <input type="text" id="searchRequestID" class="search-bar" placeholder="Search by Request ID..." onkeyup="searchRequestTable()">
+        <button onclick="resetRequestSearch()" class="reset-search">Reset</button>
+    </div>
+
     <?php
-// Fetch requests and payment statuses outside the loop
-$sql = "SELECT r.id, r.preferred_date, r.preferred_time, r.payment_method, r.status, p.status AS payment_status
-        FROM nutritionist_requests r
-        LEFT JOIN payments p ON r.id = p.request_id";
-$stmt = $pdo->prepare($sql);
-$stmt->execute();
-$requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
-?>
+    // Fetch requests and payment statuses with pagination
+    $sql = "SELECT r.id, r.preferred_date, r.preferred_time, r.payment_method, r.status, p.status AS payment_status
+            FROM nutritionist_requests r
+            LEFT JOIN payments p ON r.id = p.request_id
+            WHERE r.user_id = :user_id
+            ORDER BY r.id DESC
+            LIMIT :limit OFFSET :offset";
 
-<table>
-    <thead>
-        <tr>
-            <th>Request ID</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Payment Method</th>
-            <th>Request Status</th>
-            <th>Payment Status</th>
-        </tr>
-    </thead>
-    <tbody id="requestTableBody">
-        <?php if (!empty($requests)): ?>
-            <?php foreach ($requests as $request): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($request['id']); ?></td>
-                    <td><?php echo htmlspecialchars($request['preferred_date']); ?></td>
-                    <td><?php echo htmlspecialchars($request['preferred_time']); ?></td>
-                    <td><?php echo htmlspecialchars($paymentMethodMapping[$request['payment_method']] ?? 'Unknown'); ?></td>
-                    <td><?php echo htmlspecialchars($request['status'] ?: 'Pending'); ?></td>
-                    <td><?php echo htmlspecialchars(ucfirst($request['payment_status'] ?: 'Pending')); ?></td>
-                </tr>
-            <?php endforeach; ?>
-        <?php else: ?>
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+    $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+    $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+    $stmt->execute();
+    $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    ?>
+
+    <table>
+        <thead>
             <tr>
-                <td colspan="6" style="text-align: center;">No data available.</td>
+                <th>Request ID</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Payment Method</th>
+                <th>Request Status</th>
+                <th>Payment Status</th>
             </tr>
+        </thead>
+        <tbody id="requestTableBody">
+            <?php if (!empty($requests)): ?>
+                <?php foreach ($requests as $request): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($request['id']); ?></td>
+                        <td><?php echo htmlspecialchars($request['preferred_date']); ?></td>
+                        <td><?php echo htmlspecialchars($request['preferred_time']); ?></td>
+                        <td><?php echo htmlspecialchars($paymentMethodMapping[$request['payment_method']] ?? 'Unknown'); ?></td>
+                        <td><?php echo htmlspecialchars($request['status'] ?: 'Pending'); ?></td>
+                        <td><?php echo htmlspecialchars(ucfirst($request['payment_status'] ?: 'Pending')); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="6" style="text-align: center;">No data available.</td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <?php if ($page > 1): ?>
+            <a href="?page=<?php echo $page - 1; ?>">&laquo; Previous</a>
         <?php endif; ?>
-    </tbody>
-</table>
+        
+        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+            <a href="?page=<?php echo $i; ?>" class="<?php echo ($i === $page) ? 'active' : ''; ?>">
+                <?php echo $i; ?>
+            </a>
+        <?php endfor; ?>
+        
+        <?php if ($page < $totalPages): ?>
+            <a href="?page=<?php echo $page + 1; ?>">Next &raquo;</a>
+        <?php endif; ?>
+    </div>
+</div>
 
-
-            <div class="pagination">
-                <?php if ($page > 1): ?>
-                    <a href="?page=<?php echo $page - 1; ?>">&laquo; Previous</a>
-                <?php endif; ?>
-                
-                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <a href="?page=<?php echo $i; ?>" class="<?php echo ($i === $page) ? 'active' : ''; ?>">
-                        <?php echo $i; ?>
-                    </a>
-                <?php endfor; ?>
-                
-                <?php if ($page < $totalPages): ?>
-                    <a href="?page=<?php echo $page + 1; ?>">Next &raquo;</a>
-                <?php endif; ?>
-            </div>
-        </div>
 
 
 
