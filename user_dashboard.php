@@ -6,17 +6,7 @@ if (!isset($_SESSION['user_logged_in']) || !isset($_SESSION['user_id'])) {
 }
 
 // Database connection
-$host = 'localhost';
-$db = 'gym_management';
-$user = 'root';
-$pass = '';
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Could not connect to the database $db :" . $e->getMessage());
-}
+require 'database_connection.php'; // Include your database connection
 
 // Fetch user details
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = :id");
@@ -28,7 +18,7 @@ if (!$user) {
     exit;
 }
 
-//set up userID
+// Set up userID
 $userId = $_SESSION['user_id'];
 
 // Pagination Variables
@@ -37,7 +27,7 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1; // Current page number
 $offset = ($page - 1) * $limit; // Offset for SQL query
 
 // Fetch request history with pagination
-$stmt = $pdo->prepare("SELECT id, preferred_date, preferred_time, payment_method,status FROM nutritionist_requests WHERE user_id = :user_id ORDER BY id DESC LIMIT :limit OFFSET :offset");
+$stmt = $pdo->prepare("SELECT id, preferred_date, preferred_time, payment_method, status FROM nutritionist_requests WHERE user_id = :user_id ORDER BY id DESC LIMIT :limit OFFSET :offset");
 $stmt->bindParam(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
 $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
 $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
@@ -50,12 +40,11 @@ $countStmt->execute(['user_id' => $_SESSION['user_id']]);
 $totalRequests = $countStmt->fetchColumn();
 $totalPages = ceil($totalRequests / $limit); // Total number of pages
 
-// Pagination Variables for Body Data History
+// Fetch body data history for the logged-in user with pagination
 $bodyDataLimit = 10; // Number of records per page
 $bodyDataPage = isset($_GET['body_data_page']) ? (int)$_GET['body_data_page'] : 1; // Current page number
 $bodyDataOffset = ($bodyDataPage - 1) * $bodyDataLimit; // Offset for SQL query
 
-// Fetch body data history for the logged-in user with pagination
 $bodyDataQuery = 'SELECT bdh.*, u.first_name, u.last_name 
                   FROM body_data_history bdh
                   JOIN users u ON bdh.user_id = u.id
@@ -77,7 +66,6 @@ $countBodyDataStmt->execute();
 $totalBodyData = $countBodyDataStmt->fetchColumn();
 $totalBodyDataPages = ceil($totalBodyData / $bodyDataLimit); // Total number of pages
 
-
 // Check for request status
 $request_status = null;
 if (isset($_SESSION['request_status'])) {
@@ -85,15 +73,16 @@ if (isset($_SESSION['request_status'])) {
     unset($_SESSION['request_status']); // Clear the session variable
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if (isset($_POST['submit_body_data'])) {
-        $user_id = $_SESSION['user_id'];
-        $height = $_POST['height'];
-        $weight = $_POST['weight'];
-        $bmi = $_POST['bmi'];
-        $exercise = $_POST['exercise'];
-        $water_consumption = $_POST['water_consumption'];
+// Handle body data submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_body_data'])) {
+    $user_id = $_SESSION['user_id'];
+    $height = $_POST['height'] ?? null;
+    $weight = $_POST['weight'] ?? null;
+    $bmi = $_POST['bmi'] ?? null;
+    $exercise = $_POST['exercise'] ?? null;
+    $water_consumption = $_POST['water_consumption'] ?? null;
 
+    if ($height && $weight && $exercise && $water_consumption) {
         // Insert body data into the database
         $stmt = $pdo->prepare('INSERT INTO body_data_history (user_id, height, weight, bmi, exercise, water_consumption) VALUES (?, ?, ?, ?, ?, ?)');
         $stmt->execute([$user_id, $height, $weight, $bmi, $exercise, $water_consumption]);
@@ -101,18 +90,59 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Set a success message in the session
         $_SESSION['success_message'] = "Data successfully added.";
 
-        // Redirect to the same page
+        // Redirect to the same page to prevent resubmission
+        header('Location: user_dashboard.php');
+        exit;
+    } else {
+        $_SESSION['success_message'] = "Please fill in all required fields.";
         header('Location: user_dashboard.php');
         exit;
     }
 }
 
-// Display success message after redirect
-if (isset($_SESSION['success_message'])) {
-    $success_message = $_SESSION['success_message'];
-    unset($_SESSION['success_message']);
+// Handle class signup submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['classID'])) {
+    $classID = trim($_POST['classID'] ?? '');
+    $price = trim($_POST['price'] ?? '');
+    $paymentMethod = trim($_POST['paymentMethod'] ?? '');
+    $start_date = trim($_POST['start_date'] ?? '');
+    $end_date = trim($_POST['end_date'] ?? '');
+
+    // Validation checks
+    if (empty($classID) || empty($price) || empty($paymentMethod) || empty($start_date) || empty($end_date)) {
+        $_SESSION['success_message'] = "Please fill in all required fields.";
+    } elseif (!is_numeric($price) || $price <= 0) {
+        $_SESSION['success_message'] = "Price must be a positive number.";
+    } elseif ($start_date < date('Y-m-d')) {
+        $_SESSION['success_message'] = "Start date cannot be before today.";
+    } elseif ($end_date <= $start_date) {
+        $_SESSION['success_message'] = "End date must be after the start date.";
+    } else {
+        // Check for existing enrollment
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM fitness_classes WHERE user_id = ? AND classID = ? AND (start_date < ? AND end_date > ?)");
+        $stmt->execute([$userId, $classID, $end_date, $start_date]);
+        $existingCount = $stmt->fetchColumn();
+
+        if ($existingCount > 0) {
+            $_SESSION['success_message'] = "You are already signed up for this class during the selected dates.";
+        } else {
+            // Prepare SQL statement for signup
+            $stmt = $pdo->prepare("INSERT INTO fitness_classes (classID, user_id, price, paymentMethod, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?)");
+            if ($stmt->execute([$classID, $userId, $price, $paymentMethod, $start_date, $end_date])) {
+                $_SESSION['success_message'] = "Thank you for signing up! You have successfully registered for the " . htmlspecialchars($classID) . " class.";
+            } else {
+                $_SESSION['success_message'] = "There was an error processing your signup. Please try again.";
+            }
+        }
+    }
+    // Redirect to prevent resubmission
+    header('Location: user_dashboard.php');
+    exit;
 }
 
+// Display success message after redirect
+$success_message = $_SESSION['success_message'] ?? null;
+unset($_SESSION['success_message']);
 
 $paymentMethodMapping = [
     'credit_card' => 'Credit Card',
@@ -179,10 +209,12 @@ $paymentMethodMapping = [
                 AND (preferred_date > CURDATE() OR (preferred_date = CURDATE() AND preferred_time > CURRENT_TIME()))
                 AND preferred_date <= DATE_ADD(CURDATE(), INTERVAL 3 DAY)
                 AND status = 'approved'
+                AND is_read = 0  -- Exclude read notifications
                 ORDER BY preferred_date ASC
             ");
             $upcomingRequestsStmt->execute(['user_id' => $userId]);
             $upcomingRequests = $upcomingRequestsStmt->fetchAll(PDO::FETCH_ASSOC);
+
 
             if (count($upcomingRequests) > 0): 
         ?>
@@ -202,9 +234,81 @@ $paymentMethodMapping = [
                 <?php endforeach; ?>
             </ul>
         </div>
-        <?php endif; ?>
+        <?php else: ?>
+        <div class="notification notification-info">
+            <strong>You have no current notifications in your inbox.</strong>
+        </div>
+    <?php endif; ?>
         </div>
 
+
+            <div class="sign-up-classes">
+    <h1>Sign Up for Our Fitness Classes</h1>
+    <div class="card-container">
+        <div class="card">
+            <h2>Yoga Class</h2>
+            <p>Join our relaxing yoga sessions.</p>
+            <p>Price: RM50</p>
+            <button onclick="selectClass('Yoga', 50)">Sign Up</button>
+        </div>
+        <div class="card">
+            <h2>HIIT Training</h2>
+            <p>Intense HIIT workouts to boost your fitness.</p>
+            <p>Price: RM75</p>
+            <button onclick="selectClass('HIIT', 75)">Sign Up</button>
+        </div>
+        <div class="card">
+            <h2>Weightlifting</h2>
+            <p>Build strength with our weightlifting classes.</p>
+            <p>Price: RM100</p>
+            <button onclick="selectClass('Weightlifting', 100)">Sign Up</button>
+        </div>
+    </div>
+
+    <!-- Sign Up Form Section -->
+    <div id="signupFormSection" style="display: none;">
+        <h2>Sign Up for Class</h2>
+        <div id="selectedClassMessage" style="display: none;"></div>
+        <form id="signupForm" method="POST" action="user_dashboard.php" class="signupforms">
+            <input type="hidden" name="classID" id="classID" />
+            <input type="hidden" name="user_id" value="<?php echo $_SESSION['user_id']; ?>">
+            <input type="hidden" name="price" id="price" />
+            <input type="hidden" name="paymentMethod" id="paymentMethod" value="" required />
+
+            <label for="first_name">Name:</label>
+            <input type="text" name="first_name" value="<?php echo htmlspecialchars($user['first_name']); ?>" readonly />
+
+            <label for="email">Email:</label>
+            <input type="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" readonly />
+
+            <label for="phone">Phone Number:</label>
+            <input type="tel" name="phone" value="<?php echo htmlspecialchars($user['phone']); ?>" readonly />
+
+            <h3>Select Payment Method:</h3>
+            <div class="payment-options">
+                <button type="button" class="payment-button" data-value="credit_card">Credit Card</button>
+                <button type="button" class="payment-button" data-value="e_wallet">E-Wallet</button>
+                <button type="button" class="payment-button" data-value="bank_transfer">Bank Transfer</button>
+                <button type="button" class="payment-button" data-value="cash">Cash</button>
+            </div>
+
+            <div id="additionalFields" style="display: none;">
+                <label for="start_date">Start Date</label>
+                <input type="date" name="start_date" required />
+
+                <label for="end_date">End Date</label>
+                <input type="date" name="end_date" required />
+            </div>
+
+            <button type="submit" style="display: none;" id="submitButton">Submit</button>
+        </form>
+    </div>
+</div>
+
+
+
+
+        <!--Body Data Form-->
         <div class="forms body-form" id="body-data-section">
             <h1>Body Data</h1>
             <form method="POST" action="manage_body_data.php">
@@ -620,14 +724,57 @@ function resetRequestSearch() {
     });
 });
 
-function markAsRead(requestId) {
-    // Remove the notification from the list
-    var requestItem = document.getElementById('request-' + requestId);
-    if (requestItem) {
-        requestItem.style.display = 'none';
-    }
+function selectClass(className, price) {
+    // Show the signup form section
+    document.getElementById('signupFormSection').style.display = 'block';
+
+    // Display the selected class message
+    const selectedClassMessage = document.getElementById('selectedClassMessage');
+    selectedClassMessage.innerHTML = `You have selected the ${className} class.`;
+    selectedClassMessage.style.display = 'block';
+
+    // Set hidden fields for class ID and price
+    document.getElementById('classID').value = className;
+    document.getElementById('price').value = price;
 }
 
+function resetForm() {
+    // Reset the form fields
+    document.getElementById("signupForm").reset();
+    document.getElementById("additionalFields").style.display = "none";
+    document.getElementById("submitButton").style.display = "none";
+    const buttons = document.querySelectorAll('.payment-button');
+    buttons.forEach(btn => btn.classList.remove('active'));
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const buttons = document.querySelectorAll('.payment-button');
+    const additionalFields = document.getElementById('additionalFields');
+    const paymentMethodInput = document.getElementById('paymentMethod');
+    const submitButton = document.getElementById('submitButton');
+    let selectedPayment = '';
+
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            buttons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            selectedPayment = button.getAttribute('data-value');
+            paymentMethodInput.value = selectedPayment; // Set the payment method value
+            additionalFields.style.display = 'block'; // Show additional fields
+            submitButton.style.display = 'block'; // Show submit button
+        });
+    });
+});
+
+document.getElementById("signupForm").addEventListener("submit", function(event) {
+    const telInput = document.querySelector('input[type="tel"]');
+    const regex = /^[0-9]+$/; // Only digits
+
+    if (!regex.test(telInput.value)) {
+        event.preventDefault(); // Prevent form submission
+        alert("Please enter a valid phone number.");
+    }
+});
     </script>
 </body>
 </html>

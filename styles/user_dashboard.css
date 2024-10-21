@@ -130,7 +130,7 @@ body {
   padding: 20px;
   margin-bottom: 40px;
   width: 100%;
-  max-width: 410px;
+  max-width: 1300px;
   transition: transform 0.3s;
   margin-top: 30px;
 }
@@ -149,7 +149,7 @@ body {
   padding: 15px;
   margin-bottom: 15px; /* Adjusted margin for better spacing */
   border-radius: 5px;
-  background-color: #d4edda; /* Light green background */
+  background-color: white; /* Light green background */
   color: #155724; /* Dark green text */
   border: 1px solid #c3e6cb; /* Green border */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
@@ -184,19 +184,142 @@ body {
   font-weight: bold; /* Bold text for the title */
 }
 
+.sign-up-classes {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 40px;
+  width: 100%;
+  max-width: 1300px;
+  transition: transform 0.3s;
+  margin-top: 30px;
+}
+
+.sign-up-classes:hover {
+  transform: scale(1.02);
+}
+
+.sign-up-classes h1 {
+  color: #3b5998;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.card-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.card {
+  background-color: #ffffff; /* White background for cards */
+  border: 1px solid #ccc; /* Light grey border */
+  border-radius: 5px;
+  padding: 15px;
+  width: 30%; /* Adjust width as needed */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  text-align: center; /* Center text */
+  transition: transform 0.3s;
+}
+
+.card:hover {
+  transform: scale(1.02);
+}
+
+.card h2 {
+  font-size: 1.5em; /* Title size */
+}
+
+.card p {
+  margin: 10px 0; /* Space above and below paragraph */
+}
+
+.card p:nth-child(3) {
+  font-weight: bold; /* Make the price bold */
+  color: #2b2d42; /* Change color for emphasis */
+}
+
+.signupforms {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin: 40px auto; /* Center the form */
+  max-width: 600px; /* Maximum width */
+  width: 90%; /* Responsive width */
+}
+
+/* Form Title */
+.signupforms h1 {
+  color: #3b5998;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.5rem; /* Title size */
+}
+
+#signupFormSection h2 {
+  color: #3b5998;
+  margin-top: 50px;
+}
+
+#selectedClassMessage {
+  font-weight: bold;
+}
+
+/* Input Fields */
+.signupforms input[type="text"],
+.signupforms input[type="number"],
+.signupforms input[type="email"],
+.signupforms input[type="date"],
+.signupforms input[type="tel"],
+.signupforms input[type="time"],
+.signupforms select {
+  width: 100%; /* Full width */
+  padding: 12px; /* Padding inside input */
+  margin-bottom: 15px; /* Space below each input */
+  border: 1px solid #ccc; /* Light gray border */
+  border-radius: 4px; /* Rounded corners */
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
+  font-size: 16px; /* Font size */
+  transition: border-color 0.3s; /* Smooth transition for border color */
+}
+
+.signupforms input:focus,
+.signupforms select:focus {
+  border-color: #3b5998; /* Change border color on focus */
+  outline: none; /* Remove default outline */
+}
+
+/* Submit Button */
+.signupforms button {
+  width: 100%; /* Full width */
+  padding: 12px; /* Padding inside button */
+  background-color: #3b5998; /* Primary button color */
+  color: white; /* Button text color */
+  border: none; /* Remove border */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s; /* Smooth transition for background color */
+  font-size: 16px; /* Font size */
+}
+
+.signupforms button:hover {
+  background-color: #8b9dc3; /* Change background color on hover */
+}
+
 button {
   padding: 10px 15px;
   border: none;
   margin-top: 10px;
   border-radius: 4px;
-  background-color: #8b9dc3;
+  background-color: #3b5998;
   color: white;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 button:hover {
-  background-color: #3b5998;
+  background-color: #8b9dc3;
 }
 
 #profile-section,
