@@ -102,15 +102,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['success_message'] = "Data successfully added.";
 
         // Redirect to the same page
-        header('Location: user_dashboard.php'); // Change to your actual file name
-        exit; // Ensure no further code is executed
+        header('Location: user_dashboard.php');
+        exit;
     }
 }
 
 // Display success message after redirect
 if (isset($_SESSION['success_message'])) {
     $success_message = $_SESSION['success_message'];
-    unset($_SESSION['success_message']); // Clear the session variable
+    unset($_SESSION['success_message']);
 }
 
 
@@ -165,15 +165,6 @@ $paymentMethodMapping = [
             <?php echo htmlspecialchars($success_message); ?>
         </div>
         <?php endif; ?>
-
-
-        <div class="success-error-messages">
-            <?php if ($request_status === 'success'): ?>
-                <div class="success-message">Request successfully submitted!</div>
-            <?php elseif ($request_status === 'error'): ?>
-                <div class="error-message">Failed to submit request. Please try again.</div>
-            <?php endif; ?>
-        </div>
 
          <!-- Display upcoming requests alert -->
           <div class="inbox">
@@ -268,6 +259,8 @@ $paymentMethodMapping = [
     </form>
 </div>
 
+
+                    <!--Request History table-->
         <div class="request-history" id="request-history-section">
             <h1>Request History</h1>
             <div style="display: flex;">

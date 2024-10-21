@@ -56,7 +56,7 @@ $paymentStmt->execute([$user_id, $amount, $payment_method, $preferred_date, 'Pen
 
 
 // Redirect to the same page to avoid resubmission
-$_SESSION['request_status'] = 'success'; // Set success status
+$_SESSION['success_message'] = "Nutritionist request submitted successfully.";
 header('Location: user_dashboard.php');
 exit;
 }

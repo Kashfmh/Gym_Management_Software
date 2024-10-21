@@ -228,9 +228,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="input-group">
                 <textarea name="address" class="input-field" placeholder="Address" required></textarea>
             </div>
-            <div class="input-group">
-                <input type="text" name="unique_code" placeholder="Key in your unique code, MUST REMEMBER" required>
-            </div>
+            
             <button type="submit" name="register" class="register-button">Register</button>
         </form>
         <div class="signup-text">
