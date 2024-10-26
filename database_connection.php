@@ -4,6 +4,9 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+$admin_email = 'admin@gmail.com'; // 
+$admin_password = 'admin123'; 
+
 // Database credentials
 $host = 'localhost'; // Database host
 $db = 'gym_management'; // Database name

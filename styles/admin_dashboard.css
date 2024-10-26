@@ -319,22 +319,6 @@ button:hover {
   color: #3a5a40;
 }
 
-.payment-management table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.payment-management th,
-.payment-management td {
-  border: 1px solid #ddd;
-  padding: 8px;
-}
-
-.payment-management th {
-  background-color: #3a5a40;
-  text-align: left;
-}
-
 .payment-management button {
   display: flex;
   justify-content: center;
