@@ -1,22 +1,11 @@
 <?php
 session_start();
+include 'database_connection.php';
 
 // Check if the user is logged in
 if (!isset($_SESSION['user_logged_in']) || !isset($_SESSION['user_id'])) {
     header('Location: index.php');
     exit;
-}
-
-$host = 'localhost';
-$db = 'gym_management';
-$user = 'root';
-$pass = '';
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Could not connect to the database $db :" . $e->getMessage());
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_body_data'])) {

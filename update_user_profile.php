@@ -1,21 +1,9 @@
 <?php
 session_start();
+include 'database_connection.php';
 if (!isset($_SESSION['user_logged_in']) || !isset($_SESSION['user_id'])) {
     header('Location: index.php'); // Redirect to login page if not logged in
     exit;
-}
-
-// Database connection
-$host = 'localhost';
-$db = 'gym_management';
-$user = 'root';
-$pass = '';
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Could not connect to the database $db :" . $e->getMessage());
 }
 
 // Fetch user details
@@ -58,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $_SESSION['success_message'] = "Profile updated successfully!"; // Success message
     } catch (PDOException $e) {
-        $_SESSION['success_message'] = "Error updating profile: " . $e->getMessage(); // Error message
+        $_SESSION['error_message'] = "Error updating profile: " . $e->getMessage(); // Error message
     }
 
     header('Location: user_dashboard.php'); // Redirect back to the dashboard

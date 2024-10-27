@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'database_connection.php'; // Include your database connection
+include 'database_connection.php'; // Include your database connection
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];

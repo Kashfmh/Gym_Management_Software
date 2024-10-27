@@ -5,6 +5,11 @@ if (!isset($_SESSION['admin_logged_in'])) {
     header('Location: index.php');
     exit;
 }
+if (isset($_POST['logout'])) {
+    session_destroy(); // Clear all session data
+    header('Location: index.php'); // Redirect to the homepage
+    exit;
+}
 
 // Function to fetch users
 function fetchUsers($pdo) {
@@ -343,8 +348,8 @@ $paymentMethodMapping = [
 
             <button id="back-to-homepage" onclick="goBackToHomepage()" style="margin-top: 10px;">Go Back to Homepage</button>
 
-            <form method="POST" action="logout.php">
-                <button id="logout-admin" type="submit" class="logout-button">Logout</button>
+            <form method="POST" action="">
+                <button id="logout-admin" type="submit" class="logout-button" name="logout">Logout</button>
             </form>
         </div>
 

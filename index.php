@@ -121,7 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>
         <div class="right-section">
             <div class="admin-btn">
-                <button id="admin-button"><a href="admin.php">Admin</a></button>
+                <button id="admin-button"><a href="admin_login.php">Admin</a></button>
             </div>
         </div>
     </div>

@@ -1,25 +1,24 @@
 <?php
-// Start the session if it's not already started
+
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-$admin_email = 'admin@gmail.com'; // 
+$admin_email = 'admin@gmail.com';
 $admin_password = 'admin123'; 
 
-// Database credentials
-$host = 'localhost'; // Database host
-$db = 'gym_management'; // Database name
-$user = 'root'; // Database username
-$pass = ''; // Database password
+
+$host = 'localhost'; 
+$db = 'gym_management';
+$user = 'root'; 
+$pass = '';
 
 try {
-    // Create a new PDO instance and set error mode to exception
+    
     $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    // Handle connection error
+    
     die("Could not connect to the database $db :" . $e->getMessage());
 }
-
 ?>

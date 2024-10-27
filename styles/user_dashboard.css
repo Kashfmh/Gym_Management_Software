@@ -307,6 +307,10 @@ body {
   background-color: #8b9dc3; /* Change background color on hover */
 }
 
+.sign-forms button:active {
+  background-color: #000000;
+}
+
 button {
   padding: 10px 15px;
   border: none;

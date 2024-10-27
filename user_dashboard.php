@@ -6,11 +6,18 @@ if (!isset($_SESSION['user_logged_in']) || !isset($_SESSION['user_id'])) {
 }
 
 // Database connection
-require 'database_connection.php'; // Include your database connection
+require 'database_connection.php';
+
+if (isset($_POST['logout'])) {
+    session_destroy(); // Clear all session data
+    header('Location: index.php'); // Redirect to the homepage
+    exit;
+}
 
 // Fetch user details
+$userId = $_SESSION['user_id'];
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = :id");
-$stmt->execute(['id' => $_SESSION['user_id']]);
+$stmt->execute(['id' => $userId]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$user) {
@@ -18,14 +25,12 @@ if (!$user) {
     exit;
 }
 
-// Set up userID
-$userId = $_SESSION['user_id'];
-
 // Pagination Variables
 $limit = 10; // Number of records per page
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1; // Current page number
 $offset = ($page - 1) * $limit; // Offset for SQL query
 
+// Fetch requests
 $stmt = $pdo->prepare("SELECT r.id, r.preferred_date, r.preferred_time, r.payment_method, r.status, p.status AS payment_status 
                         FROM nutritionist_requests r
                         LEFT JOIN payments p ON r.id = p.request_id 
@@ -38,16 +43,13 @@ $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
 $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-
 // Count total requests for pagination
 $countStmt = $pdo->prepare("SELECT COUNT(*) FROM nutritionist_requests WHERE user_id = :user_id");
 $countStmt->execute(['user_id' => $userId]);
 $totalRequests = $countStmt->fetchColumn();
-
 $totalPages = ceil($totalRequests / $limit); // Total number of pages
 
-
-// Fetch body data history for the logged-in user with pagination
+// Fetch body data history
 $bodyDataLimit = 10; // Number of records per page
 $bodyDataPage = isset($_GET['body_data_page']) ? (int)$_GET['body_data_page'] : 1; // Current page number
 $bodyDataOffset = ($bodyDataPage - 1) * $bodyDataLimit; // Offset for SQL query
@@ -56,7 +58,7 @@ $bodyDataQuery = 'SELECT bdh.*, u.first_name, u.last_name
                   FROM body_data_history bdh
                   JOIN users u ON bdh.user_id = u.id
                   WHERE bdh.user_id = :user_id
-                  ORDER BY id DESC
+                  ORDER BY bdh.id DESC
                   LIMIT :limit OFFSET :offset';
 
 $bodyDataStmt = $pdo->prepare($bodyDataQuery);
@@ -66,93 +68,82 @@ $bodyDataStmt->bindParam(':offset', $bodyDataOffset, PDO::PARAM_INT);
 $bodyDataStmt->execute();
 $bodyDataHistory = $bodyDataStmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Count total body data history records for pagination
+// Count total body data history records
 $countBodyDataStmt = $pdo->prepare("SELECT COUNT(*) FROM body_data_history WHERE user_id = :user_id");
-$countBodyDataStmt->bindParam(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
+$countBodyDataStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
 $countBodyDataStmt->execute();
 $totalBodyData = $countBodyDataStmt->fetchColumn();
 $totalBodyDataPages = ceil($totalBodyData / $bodyDataLimit); // Total number of pages
 
-// Check for request status
-$request_status = null;
-if (isset($_SESSION['request_status'])) {
-    $request_status = $_SESSION['request_status'];
-    unset($_SESSION['request_status']); // Clear the session variable
-}
+// Handle form submissions
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['submit_body_data'])) {
+        $height = $_POST['height'] ?? null;
+        $weight = $_POST['weight'] ?? null;
+        $bmi = $_POST['bmi'] ?? null;
+        $exercise = $_POST['exercise'] ?? null;
+        $water_consumption = $_POST['water_consumption'] ?? null;
+        $data_date = $_POST['data_date'] ?? null;
+        $data_time = $_POST['data_time'] ?? null;
+        $created_at = $data_date && $data_time ? $data_date . ' ' . $data_time : null;
 
-// Handle body data submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_body_data'])) {
-    $user_id = $_SESSION['user_id'];
-    $height = $_POST['height'] ?? null;
-    $weight = $_POST['weight'] ?? null;
-    $bmi = $_POST['bmi'] ?? null;
-    $exercise = $_POST['exercise'] ?? null;
-    $water_consumption = $_POST['water_consumption'] ?? null;
-
-    if ($height && $weight && $exercise && $water_consumption) {
-        // Insert body data into the database
-        $stmt = $pdo->prepare('INSERT INTO body_data_history (user_id, height, weight, bmi, exercise, water_consumption) VALUES (?, ?, ?, ?, ?, ?)');
-        $stmt->execute([$user_id, $height, $weight, $bmi, $exercise, $water_consumption]);
-
-        // Set a success message in the session
-        $_SESSION['success_message'] = "Data successfully added.";
-
-        // Redirect to the same page to prevent resubmission
-        header('Location: user_dashboard.php');
-        exit;
-    } else {
-        $_SESSION['success_message'] = "Please fill in all required fields.";
+        if ($height && $weight && $exercise && $water_consumption) {
+            $stmt = $pdo->prepare('INSERT INTO body_data_history (user_id, height, weight, bmi, exercise, water_consumption, created_at) VALUES (?, ?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP))');
+            $stmt->execute([$userId, $height, $weight, $bmi, $exercise, $water_consumption, $created_at]);
+            $_SESSION['success_message'] = "Data successfully added.";
+        } else {
+            $_SESSION['error_message'] = "Please fill in all required fields.";
+        }
         header('Location: user_dashboard.php');
         exit;
     }
-}
 
-// Handle class signup submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['classID'])) {
-    $classID = trim($_POST['classID'] ?? '');
-    $price = trim($_POST['price'] ?? '');
-    $paymentMethod = trim($_POST['paymentMethod'] ?? '');
-    $start_date = trim($_POST['start_date'] ?? '');
-    $end_date = trim($_POST['end_date'] ?? '');
-    $first_name = trim($_POST['first_name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $phone = trim($_POST['phone'] ?? '');
+    if (isset($_POST['classID'])) {
+        $classID = trim($_POST['classID'] ?? '');
+        $price = trim($_POST['price'] ?? '');
+        $paymentMethod = trim($_POST['paymentMethod'] ?? '');
+        $start_date = trim($_POST['start_date'] ?? '');
+        $end_date = trim($_POST['end_date'] ?? '');
+        $first_name = trim($_POST['first_name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
 
-    // Validation checks
-    if (empty($classID) || empty($price) || empty($paymentMethod) || empty($start_date) || empty($end_date) || empty($first_name) || empty($email) || empty($phone)) {
-        $_SESSION['success_message'] = "Please fill in all required fields.";
-    } elseif (!is_numeric($price) || $price <= 0) {
-        $_SESSION['success_message'] = "Price must be a positive number.";
-    } elseif ($start_date < date('Y-m-d')) {
-        $_SESSION['success_message'] = "Start date cannot be before today.";
-    } elseif ($end_date <= $start_date) {
-        $_SESSION['success_message'] = "End date must be after the start date.";
-    } else {
-        // Check for existing enrollment
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM fitness_classes WHERE user_id = ? AND classID = ? AND (start_date < ? AND end_date > ?)");
-        $stmt->execute([$userId, $classID, $end_date, $start_date]);
-        $existingCount = $stmt->fetchColumn();
-
-        if ($existingCount > 0) {
-            $_SESSION['success_message'] = "You are already signed up for this class during the selected dates.";
+        // Validation checks
+        if (empty($classID) || empty($price) || empty($paymentMethod) || empty($start_date) || empty($end_date) || empty($first_name) || empty($email) || empty($phone)) {
+            $_SESSION['error_message'] = "Please fill in all required fields.";
+        } elseif (!is_numeric($price) || $price <= 0) {
+            $_SESSION['error_message'] = "Price must be a positive number.";
+        } elseif ($start_date < date('Y-m-d')) {
+            $_SESSION['error_message'] = "Start date cannot be before today.";
+        } elseif ($end_date <= $start_date) {
+            $_SESSION['error_message'] = "End date must be after the start date.";
         } else {
-            // Prepare SQL statement for signup, including first_name, email, and phone
-            $stmt = $pdo->prepare("INSERT INTO fitness_classes (classID, user_id, price, paymentMethod, start_date, end_date, first_name, email, phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            if ($stmt->execute([$classID, $userId, $price, $paymentMethod, $start_date, $end_date, $first_name, $email, $phone])) {
-                $_SESSION['success_message'] = "Thank you for signing up! You have successfully registered for the " . htmlspecialchars($classID) . " class.";
+            // Check for existing enrollment
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM fitness_classes WHERE user_id = ? AND classID = ? AND (start_date < ? AND end_date > ?)");
+            $stmt->execute([$userId, $classID, $end_date, $start_date]);
+            $existingCount = $stmt->fetchColumn();
+
+            if ($existingCount > 0) {
+                $_SESSION['error_message'] = "You are already signed up for this class during the selected dates.";
             } else {
-                $_SESSION['success_message'] = "There was an error processing your signup. Please try again.";
+                // Prepare SQL statement for signup
+                $stmt = $pdo->prepare("INSERT INTO fitness_classes (classID, user_id, price, paymentMethod, start_date, end_date, first_name, email, phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                if ($stmt->execute([$classID, $userId, $price, $paymentMethod, $start_date, $end_date, $first_name, $email, $phone])) {
+                    $_SESSION['success_message'] = "Thank you for signing up! You have successfully registered for the " . htmlspecialchars($classID) . " class.";
+                } else {
+                    $_SESSION['error_message'] = "There was an error processing your signup. Please try again.";
+                }
             }
         }
+        header('Location: user_dashboard.php');
+        exit;
     }
-    // Redirect to prevent resubmission
-    header('Location: user_dashboard.php');
-    exit;
 }
 
-// Display success message after redirect
+// Display messages
 $success_message = $_SESSION['success_message'] ?? null;
-unset($_SESSION['success_message']);
+$error_message = $_SESSION['error_message'] ?? null;
+unset($_SESSION['success_message'], $_SESSION['error_message']);
 
 $paymentMethodMapping = [
     'credit_card' => 'Credit Card',
@@ -161,6 +152,7 @@ $paymentMethodMapping = [
     'e_wallet' => 'E-Wallet'
 ];
 ?>
+
 
 
 <!DOCTYPE html>
@@ -320,7 +312,7 @@ $paymentMethodMapping = [
         <!--Body Data Form-->
         <div class="forms body-form" id="body-data-section">
             <h1>Body Data</h1>
-            <form method="POST" action="manage_body_data.php">
+            <form method="POST" action="">
                 <label for="height">Height (cm):</label>
                 <input type="number" name="height" id="height" required oninput="calculateBMI()">
 
@@ -336,6 +328,12 @@ $paymentMethodMapping = [
                 <label for="water_consumption">Water Consumption (liters):</label>
                 <input type="number" name="water_consumption" id="water_consumption" step="0.01" required>
 
+                <label for="data_date">Date:</label>
+                <input type="date" name="data_date" id="data_date" required>
+
+                <label for="data_time">Time:</label>
+                <input type="time" name="data_time" id="data_time" required>
+
                 <button type="submit" name="submit_body_data">Save</button>
             </form>
         </div>
@@ -348,10 +346,10 @@ $paymentMethodMapping = [
         
         <h3>Select Payment Method:</h3>
         <div class="payment-options">
-            <button type="button" class="payment-button" data-value="credit_card">Credit Card</button>
-            <button type="button" class="payment-button" data-value="e_wallet">E-Wallet</button>
-            <button type="button" class="payment-button" data-value="bank_transfer">Bank Transfer</button>
-            <button type="button" class="payment-button" data-value="cash">Cash</button>
+            <button type="button" class="payment-button" data-value="credit_card"onclick="selectPaymentMethod('credit_card')">Credit Card</button>
+            <button type="button" class="payment-button" data-value="e_wallet"onclick="selectPaymentMethod('e_wallet')">E-Wallet</button>
+            <button type="button" class="payment-button" data-value="bank_transfer"onclick="selectPaymentMethod('bank_transfer')">Bank Transfer</button>
+            <button type="button" class="payment-button" data-value="cash"onclick="selectPaymentMethod('cash')">Cash</button>
         </div>
         
         <button id="request-meeting" type="button">Select Payment Type</button>
@@ -545,8 +543,8 @@ $paymentMethodMapping = [
         <button id="back-to-homepage" onclick="goBackToHomepage()" style="margin-top: 10px;">Go Back to Homepage</button>
 
         <!-- Logout Button -->
-        <form method="POST" action="logout.php">
-            <button type="submit" class="logout-button">Logout</button>
+        <form method="POST" action="">
+            <button type="submit" class="logout-button" name="logout">Logout</button>
         </form>
     </div>
 
@@ -797,6 +795,24 @@ document.getElementById("signupForm").addEventListener("submit", function(event)
         endDate.setMonth(startDate.getMonth() + 1); // Set end date to one month later
         document.getElementById('end_date').value = endDate.toISOString().split('T')[0];
     }
+
+    function selectPaymentMethod(method) {
+    // Store the selected payment method
+    document.getElementById('payment-method').value = method; 
+    document.getElementById('error-message').style.display = 'none'; // Hide error message
+    
+    // Remove 'selected' class from all payment buttons
+    const buttons = document.querySelectorAll('.payment-button');
+    buttons.forEach(button => {
+        button.classList.remove('selected');
+    });
+
+    // Add 'selected' class to the clicked button
+    const selectedButton = Array.from(buttons).find(button => button.dataset.value === method);
+    if (selectedButton) {
+        selectedButton.classList.add('selected');
+    }
+}
     </script>
 </body>
 </html>
