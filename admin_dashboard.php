@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Pagination Variables
-$limit = 10; 
+$limit = 5; 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1; 
 $offset = ($page - 1) * $limit; 
 
@@ -108,7 +108,7 @@ $paymentStmt = $pdo->prepare('SELECT p.id, p.user_id, p.amount, p.payment_method
                                FROM payments p
                                JOIN users u ON p.user_id = u.id
                                WHERE u.first_name LIKE :search OR u.last_name LIKE :search OR p.user_id LIKE :search
-                               ORDER BY p.payment_date DESC
+                               ORDER BY p.id DESC
                                LIMIT :start_from, :records_per_page');
 $paymentStmt->bindParam(':search', $search_param);
 $paymentStmt->bindParam(':start_from', $offset, PDO::PARAM_INT);
@@ -233,7 +233,7 @@ $paymentMethodMapping = [
 
             <!-- Admin Nutrition Request -->
             <div class="form-request" id="request-nutritionist-section">
-                <form method="POST" action="request_nutritionist_admin.php">
+                <form method="POST" action="">
                     <h1>Nutrition Request Form</h1>
                     <label for="user_id">Select User:</label>
                     <select class="request-form-select" name="user_id" required>
@@ -401,33 +401,28 @@ $paymentMethodMapping = [
     function handleFormSubmit(event, requestId, action) {
         event.preventDefault(); // Prevent the default form submission
 
-        // Store the current scroll position
-        const scrollPosition = window.scrollY;
-
         // Create a hidden input to specify the action
-        const formData = new FormData();
-        formData.append('request_id', requestId);
-        formData.append('action', action);
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'manage_requests.php';
 
-        // Create a new XMLHttpRequest
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'manage_requests.php', true);
-        xhr.onload = function() {
-            if (xhr.status === 200) {
-                
-                location.reload(); // Reload to see changes
-            } else {
-                // Handle error response
-                alert('Error unable to complete action');
-            }
-        };
-        xhr.send(formData);
+        const requestIdInput = document.createElement('input');
+        requestIdInput.type = 'hidden';
+        requestIdInput.name = 'request_id';
+        requestIdInput.value = requestId;
 
-        // Restore the scroll position after a slight delay
-        setTimeout(() => {
-            window.scrollTo(0, scrollPosition);
-        }, 100);
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = action;
+
+        form.appendChild(requestIdInput);
+        form.appendChild(actionInput);
+        document.body.appendChild(form); // Append form to body
+
+        form.submit(); // Submit the form
     }
+
 
     function searchTable() {
     const input = document.getElementById('searchBar');
@@ -475,10 +470,17 @@ function sortTableByDate() {
     rows.forEach(row => table.appendChild(row));
 }
 
-// Call this function when the page loads or after data is added
 window.onload = function() {
-    sortTableByDate();
+    const scrollPosition = sessionStorage.getItem('scrollPosition');
+    if (scrollPosition) {
+        window.scrollTo(0, scrollPosition);
+    }
+
+    window.onscroll = function() {
+        sessionStorage.setItem('scrollPosition', window.scrollY);
+    };
 };
+
 
 function searchRequestTable() {
     const input = document.getElementById('requestSearchBar');

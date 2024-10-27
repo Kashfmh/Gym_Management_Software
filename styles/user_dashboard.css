@@ -761,6 +761,14 @@ textarea {
   transition: opacity 0.5s ease-in-out;
 }
 
+.alert-error {
+  background-color: #e4b3b3;
+  color: #d32929;
+  border: 1px solid #e4b3b3;
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;

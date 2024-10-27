@@ -199,6 +199,12 @@ $paymentMethodMapping = [
         </div>
         <?php endif; ?>
 
+        <?php if (isset($error_message)): ?>
+        <div class="alert alert-error" id="success-message">
+            <?php echo htmlspecialchars($error_message); ?>
+        </div>
+        <?php endif; ?>
+
          <!-- Display upcoming requests alert -->
           <div class="inbox">
             <h1>Inbox</h1>
