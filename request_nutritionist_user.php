@@ -1,24 +1,10 @@
 <?php
 session_start();
-
+require 'database_connection.php';
 if (!isset($_SESSION['user_logged_in'])) {
     header('Location: index.php');
     exit;
 }
-
-// Database connection
-$host = 'localhost';
-$db = 'gym_management';
-$user = 'root';
-$pass = '';
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Could not connect to the database $db :" . $e->getMessage());
-}
-
 // Check if form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $preferred_date = $_POST['preferred_date'];

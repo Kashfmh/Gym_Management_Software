@@ -1,22 +1,10 @@
 <?php
 session_start();
+require 'database_connection.php';
 if (!isset($_SESSION['admin_logged_in'])) {
     header('Location: index.php');
     exit;
 }
-
-$host = 'localhost';
-$db = 'gym_management';
-$user = 'root';        
-$pass = '';            
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Could not connect to the database: " . $e->getMessage());
-}
-
 // Check if the request is for inserting or updating a payment
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['payment_id'])) {

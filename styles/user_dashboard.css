@@ -724,6 +724,20 @@ textarea {
   background-color: #f1f1f1;
 }
 
+.current-enrollments {
+  width: 100%;
+  max-width: 1300px;
+  margin-top: 40px;
+  background-color: #ffffff;
+  padding: 25px 25px;
+  border-radius: 10px;
+  transition: transform 0.3s;
+}
+
+.current-enrollments:hover {
+  transform: scale(1.02);
+}
+
 .body-data-history {
   width: 100%;
   max-width: 1300px;

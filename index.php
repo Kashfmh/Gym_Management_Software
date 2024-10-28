@@ -159,9 +159,9 @@ document.addEventListener("DOMContentLoaded", function () {
         <h2>Pricing</h2>
         <div class="pricing-cards">
             <div class="pricing-card">
-                <h3>Membership</h3>
+                <h3>Fitness Classes</h3>
                 <p>Monthly Fee: RM50 - RM100</p>
-                <p>Access to all fitness classes.</p>
+                <p>Access to various classes on a monthly basis</p>
             </div>
             <div class="pricing-card">
                 <h3>Nutrition Consultation</h3>

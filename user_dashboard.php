@@ -43,6 +43,8 @@ $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
 $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+
+
 // Count total requests for pagination
 $countStmt = $pdo->prepare("SELECT COUNT(*) FROM nutritionist_requests WHERE user_id = :user_id");
 $countStmt->execute(['user_id' => $userId]);
@@ -75,6 +77,7 @@ $countBodyDataStmt->execute();
 $totalBodyData = $countBodyDataStmt->fetchColumn();
 $totalBodyDataPages = ceil($totalBodyData / $bodyDataLimit); // Total number of pages
 
+
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['submit_body_data'])) {
@@ -99,46 +102,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (isset($_POST['classID'])) {
-        $classID = trim($_POST['classID'] ?? '');
-        $price = trim($_POST['price'] ?? '');
-        $paymentMethod = trim($_POST['paymentMethod'] ?? '');
-        $start_date = trim($_POST['start_date'] ?? '');
-        $end_date = trim($_POST['end_date'] ?? '');
-        $first_name = trim($_POST['first_name'] ?? '');
-        $email = trim($_POST['email'] ?? '');
-        $phone = trim($_POST['phone'] ?? '');
+    $classID = trim($_POST['classID'] ?? '');
+    $price = trim($_POST['price'] ?? '');
+    $paymentMethod = trim($_POST['paymentMethod'] ?? '');
+    $start_date = trim($_POST['start_date'] ?? '');
+    $end_date = trim($_POST['end_date'] ?? '');
+    $first_name = trim($_POST['first_name'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $phone = trim($_POST['phone'] ?? '');
 
-        // Validation checks
-        if (empty($classID) || empty($price) || empty($paymentMethod) || empty($start_date) || empty($end_date) || empty($first_name) || empty($email) || empty($phone)) {
-            $_SESSION['error_message'] = "Please fill in all required fields.";
-        } elseif (!is_numeric($price) || $price <= 0) {
-            $_SESSION['error_message'] = "Price must be a positive number.";
-        } elseif ($start_date < date('Y-m-d')) {
-            $_SESSION['error_message'] = "Start date cannot be before today.";
-        } elseif ($end_date <= $start_date) {
-            $_SESSION['error_message'] = "End date must be after the start date.";
+    // Validation checks
+    if (empty($classID) || empty($price) || empty($paymentMethod) || empty($start_date) || empty($end_date) || empty($first_name) || empty($email) || empty($phone)) {
+        $_SESSION['error_message'] = "Please fill in all required fields.";
+    } elseif (!is_numeric($price) || $price <= 0) {
+        $_SESSION['error_message'] = "Price must be a positive number.";
+    } elseif ($start_date < date('Y-m-d')) {
+        $_SESSION['error_message'] = "Start date cannot be before today.";
+    } elseif ($end_date <= $start_date) {
+        $_SESSION['error_message'] = "End date must be after the start date.";
+    } else {
+        // Check for existing enrollment
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM fitness_classes WHERE user_id = ? AND classID = ? AND (start_date < ? AND end_date > ?)");
+        $stmt->execute([$userId, $classID, $end_date, $start_date]);
+        $existingCount = $stmt->fetchColumn();
+
+        if ($existingCount > 0) {
+            $_SESSION['error_message'] = "You are already signed up for this class during the selected dates.";
         } else {
-            // Check for existing enrollment
-            $stmt = $pdo->prepare("SELECT COUNT(*) FROM fitness_classes WHERE user_id = ? AND classID = ? AND (start_date < ? AND end_date > ?)");
-            $stmt->execute([$userId, $classID, $end_date, $start_date]);
-            $existingCount = $stmt->fetchColumn();
-
-            if ($existingCount > 0) {
-                $_SESSION['error_message'] = "You are already signed up for this class during the selected dates.";
+            // Prepare SQL statement for signup
+            $stmt = $pdo->prepare("INSERT INTO fitness_classes (classID, user_id, price, paymentMethod, start_date, end_date, first_name, email, phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            if ($stmt->execute([$classID, $userId, $price, $paymentMethod, $start_date, $end_date, $first_name, $email, $phone])) {
+                $_SESSION['success_message'] = "Thank you for signing up! You have successfully registered for the " . htmlspecialchars($classID) . " class.";
             } else {
-                // Prepare SQL statement for signup
-                $stmt = $pdo->prepare("INSERT INTO fitness_classes (classID, user_id, price, paymentMethod, start_date, end_date, first_name, email, phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                if ($stmt->execute([$classID, $userId, $price, $paymentMethod, $start_date, $end_date, $first_name, $email, $phone])) {
-                    $_SESSION['success_message'] = "Thank you for signing up! You have successfully registered for the " . htmlspecialchars($classID) . " class.";
-                } else {
-                    $_SESSION['error_message'] = "There was an error processing your signup. Please try again.";
-                }
+                $_SESSION['error_message'] = "There was an error processing your signup. Please try again.";
             }
         }
-        header('Location: user_dashboard.php');
-        exit;
     }
+    header('Location: user_dashboard.php');
+    exit;
 }
+}
+
+// Fetch current enrollments after form submission handling
+$currentEnrollmentsStmt = $pdo->prepare("
+    SELECT classID, start_date, end_date, price, paymentMethod 
+    FROM fitness_classes 
+    WHERE user_id = :user_id 
+    AND end_date > CURDATE() 
+    ORDER BY classID desc
+");
+$currentEnrollmentsStmt->execute(['user_id' => $userId]);
+$currentEnrollments = $currentEnrollmentsStmt->fetchAll(PDO::FETCH_ASSOC);
+
 
 // Display messages
 $success_message = $_SESSION['success_message'] ?? null;
@@ -448,6 +463,35 @@ $paymentMethodMapping = [
     </div>
 </div>
 
+<div class="current-enrollments">
+    <h2>Your Current Enrollments</h2>
+    <?php if (!empty($currentEnrollments)): ?>
+        <table>
+            <thead>
+                <tr>
+                    <th>Class ID</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Price</th>
+                    <th>Payment Method</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($currentEnrollments as $enrollment): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($enrollment['classID']); ?></td>
+                        <td><?php echo htmlspecialchars($enrollment['start_date']); ?></td>
+                        <td><?php echo htmlspecialchars($enrollment['end_date']); ?></td>
+                        <td><?php echo htmlspecialchars($enrollment['price']); ?></td>
+                        <td><?php echo htmlspecialchars($paymentMethodMapping[$enrollment['paymentMethod']] ?? 'Unknown'); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php else: ?>
+        <p>You are not currently enrolled in any classes.</p>
+    <?php endif; ?>
+</div>
 
 
 
