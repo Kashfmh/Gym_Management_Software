@@ -27,11 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_meeting'])) {
     $stmt = $pdo->prepare("INSERT INTO nutritionist_requests (user_id, preferred_date, preferred_time, payment_method) VALUES (?, ?, ?, ?)");
     $stmt->execute([$user_id, $preferred_date, $preferred_time, $payment_method]);
 
-    // Insert payment record
+    // Get the last inserted request ID
+    $request_id = $pdo->lastInsertId();
+
+    // Insert payment record with the request_id
     $amount = 20.00; // Fixed amount for each session
     $status = 'Pending'; // Default status
-    $paymentStmt = $pdo->prepare("INSERT INTO payments (user_id, amount, payment_method, payment_date, status) VALUES (?, ?, ?, ?, ?)");
-    $paymentStmt->execute([$user_id, $amount, $payment_method, $preferred_date, $status]);
+    $paymentStmt = $pdo->prepare("INSERT INTO payments (user_id, request_id, amount, payment_method, payment_date, status) VALUES (?, ?, ?, ?, ?, ?)");
+    $paymentStmt->execute([$user_id, $request_id, $amount, $payment_method, $preferred_date, $status]);
 
     header('Location: admin_dashboard.php');
     exit;
@@ -104,10 +107,11 @@ $total_records = $total_records_query->fetchColumn();
 $total_pages = ceil($total_records / $limit);
 
 // Fetch records for current page with search
-$paymentStmt = $pdo->prepare('SELECT p.id, p.user_id, p.amount, p.payment_method, p.payment_date, p.status, u.first_name, u.last_name 
+$paymentStmt = $pdo->prepare('SELECT p.id, p.request_id, p.amount, p.payment_method, p.payment_date, p.status, r.user_id, u.first_name, u.last_name 
                                FROM payments p
-                               JOIN users u ON p.user_id = u.id
-                               WHERE u.first_name LIKE :search OR u.last_name LIKE :search OR p.user_id LIKE :search
+                               JOIN nutritionist_requests r ON p.request_id = r.id
+                               JOIN users u ON r.user_id = u.id
+                               WHERE u.first_name LIKE :search OR u.last_name LIKE :search OR r.user_id LIKE :search
                                ORDER BY p.id DESC
                                LIMIT :start_from, :records_per_page');
 $paymentStmt->bindParam(':search', $search_param);
@@ -115,6 +119,7 @@ $paymentStmt->bindParam(':start_from', $offset, PDO::PARAM_INT);
 $paymentStmt->bindParam(':records_per_page', $limit, PDO::PARAM_INT);
 $paymentStmt->execute();
 $payments = $paymentStmt->fetchAll(PDO::FETCH_ASSOC);
+
 
 $paymentMethodMapping = [
     'credit_card' => 'Credit Card',
@@ -330,7 +335,8 @@ $paymentMethodMapping = [
                     <?php endif; ?>
                 </div>
             </div>
-        </div> <!--End of main-->
+        </div>
+    </div> <!--End of main-->
 
         <!-- Admin Profile Section -->
         <div id="profile-section" style="display: none;">
