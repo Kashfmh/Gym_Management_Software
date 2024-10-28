@@ -30,16 +30,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_meeting'])) {
     // Get the last inserted request ID
     $request_id = $pdo->lastInsertId();
 
-    // Insert payment record with the request_id
+    // Insert payment record
     $amount = 20.00; // Fixed amount for each session
     $status = 'Pending'; // Default status
-    $paymentStmt = $pdo->prepare("INSERT INTO payments (user_id, request_id, amount, payment_method, payment_date, status) VALUES (?, ?, ?, ?, ?, ?)");
-    $paymentStmt->execute([$user_id, $request_id, $amount, $payment_method, $preferred_date, $status]);
+    $paymentStmt = $pdo->prepare("INSERT INTO payments (request_id, user_id, amount, payment_method, payment_date, status) VALUES (?, ?, ?, ?, ?, ?)");
+    $paymentStmt->execute([$request_id, $user_id, $amount, $payment_method, $preferred_date, $status]);
+
+    $_SESSION['success_message'] = "Nutritionist request submitted successfully.";
 
     header('Location: admin_dashboard.php');
     exit;
 }
-
 // Handle Request Actions (Approve/Reject)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $request_id = $_POST['request_id'];
@@ -48,9 +49,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'approve') {
         $stmt = $pdo->prepare("UPDATE nutritionist_requests SET status = 'approved' WHERE id = ?");
         $stmt->execute([$request_id]);
-        echo "Request approved successfully.";
+         $_SESSION['success_message'] = "Request approved successfully.";
     } elseif ($action === 'reject') {
-        echo "Request rejected.";
+         $_SESSION['error_message'] = "Request rejected.";
     }
 }
 
@@ -107,19 +108,20 @@ $total_records = $total_records_query->fetchColumn();
 $total_pages = ceil($total_records / $limit);
 
 // Fetch records for current page with search
-$paymentStmt = $pdo->prepare('SELECT p.id, p.request_id, p.amount, p.payment_method, p.payment_date, p.status, r.user_id, u.first_name, u.last_name 
-                               FROM payments p
-                               JOIN nutritionist_requests r ON p.request_id = r.id
-                               JOIN users u ON r.user_id = u.id
-                               WHERE u.first_name LIKE :search OR u.last_name LIKE :search OR r.user_id LIKE :search
-                               ORDER BY p.id DESC
-                               LIMIT :start_from, :records_per_page');
+$paymentStmt = $pdo->prepare('SELECT p.id, p.request_id, p.amount, p.payment_method, p.payment_date, p.status, u.id AS user_id, u.first_name, u.last_name 
+                                FROM payments p
+                                JOIN nutritionist_requests nr ON p.request_id = nr.id
+                                JOIN users u ON nr.user_id = u.id
+                                WHERE (u.first_name LIKE :search OR u.last_name LIKE :search OR nr.user_id LIKE :search)
+                                AND nr.status = "approved"
+                                ORDER BY p.id DESC
+                                LIMIT :start_from, :records_per_page');
+
 $paymentStmt->bindParam(':search', $search_param);
 $paymentStmt->bindParam(':start_from', $offset, PDO::PARAM_INT);
 $paymentStmt->bindParam(':records_per_page', $limit, PDO::PARAM_INT);
 $paymentStmt->execute();
 $payments = $paymentStmt->fetchAll(PDO::FETCH_ASSOC);
-
 
 $paymentMethodMapping = [
     'credit_card' => 'Credit Card',
@@ -165,6 +167,20 @@ $paymentMethodMapping = [
         <div class="welcome-message" id="dashboard-section">
             <h1>Welcome, <?php echo htmlspecialchars($admin['name']); ?>!</h1>
         </div>
+
+        <!-- Display success message -->
+        <?php if (isset($_SESSION['success_message'])): ?>
+        <div class="success-message" id="success-message">
+            <?php echo htmlspecialchars($_SESSION['success_message']); ?>
+        </div>
+        <?php unset($_SESSION['success_message']); endif; ?>
+
+        <!-- Display error message -->
+        <?php if (isset($_SESSION['error_message'])): ?>
+        <div class="error-message" id="error-message">
+            <?php echo htmlspecialchars($_SESSION['error_message']); ?>
+        </div>
+        <?php unset($_SESSION['error_message']); endif; ?>
         
         <div class="content" id="content-hide">
             <div class="table-forms" id="nutritionist-request-section">
@@ -335,8 +351,8 @@ $paymentMethodMapping = [
                     <?php endif; ?>
                 </div>
             </div>
-        </div>
-    </div> <!--End of main-->
+            </div>
+        </div> <!--End of main-->
 
         <!-- Admin Profile Section -->
         <div id="profile-section" style="display: none;">
@@ -476,17 +492,6 @@ function sortTableByDate() {
     rows.forEach(row => table.appendChild(row));
 }
 
-window.onload = function() {
-    const scrollPosition = sessionStorage.getItem('scrollPosition');
-    if (scrollPosition) {
-        window.scrollTo(0, scrollPosition);
-    }
-
-    window.onscroll = function() {
-        sessionStorage.setItem('scrollPosition', window.scrollY);
-    };
-};
-
 
 function searchRequestTable() {
     const input = document.getElementById('requestSearchBar');
@@ -506,6 +511,31 @@ function searchRequestTable() {
         }
     });
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+
+    function fadeOut(element) {
+        element.style.opacity = '1';
+        setTimeout(() => {
+            element.style.opacity = '0';
+            setTimeout(() => {
+                element.remove();
+            }, 500);
+        }, 3000);
+    }
+
+    // Check for success and error messages
+    const successMessage = document.getElementById('success-message');
+    const errorMessage = document.getElementById('error-message');
+
+    if (successMessage) {
+        fadeOut(successMessage);
+    }
+
+    if (errorMessage) {
+        fadeOut(errorMessage);
+    }
+});
     </script>
 </body>
 </html>

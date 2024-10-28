@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'database_connection.php'; // Include your database connection
+require 'database_connection.php'; 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = $_POST['name'];
@@ -8,10 +8,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $mobile = $_POST['mobile'];
     $password = $_POST['password'];
 
-    // Fetch the current admin data
-    $admin_id = $_SESSION['admin_id']; // Assuming the admin ID is stored in the session
 
-    // Prepare the SQL query
+    $admin_id = $_SESSION['admin_id'];
+
+
     $sql = "UPDATE admins SET name = ?, email = ?, mobile = ?";
 
     // Check if a new password was provided
@@ -30,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->execute([$name, $email, $mobile, $admin_id]);
     }
 
+    $_SESSION['success_message'] = "Profile updated successfully.";
     // Redirect back to the profile page
     header('Location: admin_dashboard.php');
     exit;
