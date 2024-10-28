@@ -1,21 +1,20 @@
 <?php
 session_start();
-include 'database_connection.php'; // Adjust the path as necessary
+require 'database_connection.php';
 
-$data = json_decode(file_get_contents("php://input"), true);
-$requestId = $data['id'] ?? null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = json_decode(file_get_contents('php://input'), true);
+    $requestId = $data['id'];
 
-if ($requestId) {
-    // Update the notification to mark it as read
-    $stmt = $pdo->prepare("UPDATE nutritionist_requests SET is_read = 1 WHERE id = :id");
-    $stmt->bindParam(':id', $requestId, PDO::PARAM_INT);
+    // Update the is_read status in the database
+    $stmt = $pdo->prepare("UPDATE nutritionist_requests SET is_read = 1 WHERE id = :id AND user_id = :user_id");
+    $stmt->execute([
+        'id' => $requestId,
+        'user_id' => $_SESSION['user_id']
+    ]);
 
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true]);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Failed to update status.']);
-    }
+    echo json_encode(['success' => true]);
 } else {
-    echo json_encode(['success' => false, 'message' => 'Invalid request.']);
+    echo json_encode(['success' => false]);
 }
 ?>

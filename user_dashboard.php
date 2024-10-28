@@ -26,7 +26,7 @@ if (!$user) {
 }
 
 // Pagination Variables
-$limit = 10; // Number of records per page
+$limit = 5; // Number of records per page
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1; // Current page number
 $offset = ($page - 1) * $limit; // Offset for SQL query
 
@@ -248,8 +248,7 @@ $paymentMethodMapping = [
             <strong>You have no current notifications in your inbox.</strong>
         </div>
     <?php endif; ?>
-        </div>
-
+       </div>
 
     <div class="sign-up-classes">
     <h1>Sign Up for Our Fitness Classes</h1>
@@ -819,6 +818,36 @@ document.getElementById("signupForm").addEventListener("submit", function(event)
         selectedButton.classList.add('selected');
     }
 }
+
+function markAsRead(requestId) {
+    // Send a POST request to update the read status
+    fetch('mark_as_read.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id: requestId })
+    })
+    .then(response => {
+        if (response.ok) {
+            // Update the UI to show that the notification is read
+            const requestElement = document.getElementById(`request-${requestId}`);
+            if (requestElement) {
+                requestElement.style.textDecoration = 'line-through';
+                requestElement.style.color = 'gray'; // Optional: change color
+
+                // Hide the element after 3 seconds
+                setTimeout(() => {
+                    requestElement.style.display = 'none'; // Hide the element
+                }, 1500); // 3000 milliseconds = 3 seconds
+            }
+        } else {
+            console.error('Failed to mark as read');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
     </script>
 </body>
 </html>

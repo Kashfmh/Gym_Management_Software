@@ -1,31 +1,27 @@
 <?php
 session_start();
-include 'database_connection.php'; // Include your database connection
+include 'database_connection.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
 
-    // Check if the email exists
+    //validate if the email actually exists
     $stmt = $pdo->prepare("SELECT id FROM users WHERE email = :email");
     $stmt->execute(['email' => $email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user) {
 
-        // Generate a unique token
+        //token generation
         $token = bin2hex(random_bytes(50));
         $stmt = $pdo->prepare("INSERT INTO password_resets (email, token) VALUES (:email, :token)");
         $stmt->execute(['email' => $email, 'token' => $token]);
 
-        // Send email
+        //email
         $resetLink = "http://localhost/phpnewassignment/reset_password.php?token=" . $token;
 
-        $headers = "From: no-reply@yourdomain.com\r\n";
-        $headers .= "Reply-To: no-reply@yourdomain.com\r\n";
-        $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
-
-         // Attempt to send the email and check the result
-    if (mail($email, "Password Reset Link", "Hello fellow member,\n\nHere is the password reset link you requested! Please click the link to continue with your password reset:\n" . $resetLink, $headers)) {
+         //email body and extra stuff
+    if (mail($email, "Password Reset Link", "Hello fellow member,\n\nHere is the password reset link you requested! Please click the link to continue with your password reset:\n" . $resetLink)) {
         $_SESSION['message'] = "A password reset link has been sent to your email.";
     } else {
         $_SESSION['error'] = "Failed to send the reset email. Please try again later.";

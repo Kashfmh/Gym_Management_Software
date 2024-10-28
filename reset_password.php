@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'database_connection.php'; // Include your database connection
+require 'database_connection.php';
 
 if (isset($_GET['token'])) {
     $token = $_GET['token'];
@@ -18,15 +18,14 @@ if (isset($_GET['token'])) {
         $newPassword = password_hash($_POST['password'], PASSWORD_DEFAULT);
         $email = $resetRequest['email'];
 
-        // Update the user's password
+        
         $stmt = $pdo->prepare("UPDATE users SET password = :password WHERE email = :email");
         $stmt->execute(['password' => $newPassword, 'email' => $email]);
 
-        // Remove the token from the database
+        
         $stmt = $pdo->prepare("DELETE FROM password_resets WHERE token = :token");
         $stmt->execute(['token' => $token]);
 
-        $_SESSION['success_message'] = "Password was succesfully reset, you may now close this tab"; // Success message
         header('Location: index.php');
         exit;
     }
@@ -52,11 +51,6 @@ if (isset($_GET['token'])) {
                 </div>
                 <button type="submit" class="submit-button">Reset Password</button>
             </form>
-            <?php if (isset($success_message)): ?>
-        <div class="alert alert-success" id="success-message">
-            <?php echo htmlspecialchars($success_message); ?>
-        </div>
-        <?php endif; ?>
         </div>
     </div>
 </body>
