@@ -6,11 +6,11 @@ if (!isset($_SESSION['user_logged_in']) || !isset($_SESSION['user_id'])) {
     exit;
 }
 
-// Check if ID is set
+
 if (isset($_POST['id'])) {
     $id = $_POST['id'];
 
-    // Prepare and execute delete statement
+    
     $stmt = $pdo->prepare("DELETE FROM body_data_history WHERE id = :id");
     $stmt->bindParam(':id', $id, PDO::PARAM_INT);
     
@@ -23,7 +23,7 @@ if (isset($_POST['id'])) {
     $_SESSION['error_message'] = "Invalid request.";
 }
 
-// Redirect back to user dashboard
+
 header('Location: user_dashboard.php');
 exit;
 ?>

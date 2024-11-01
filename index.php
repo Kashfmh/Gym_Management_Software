@@ -22,7 +22,7 @@ include 'database_connection.php';
         }
     }
 
-    //User registration logic
+    
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register'])) {
             // Collect registration data
             $first_name = $_POST['first_name'];
@@ -58,7 +58,7 @@ include 'database_connection.php';
                     $_SESSION['user_id'] = $pdo->lastInsertId();
                     $_SESSION['fullname'] = $first_name . ' ' . $last_name;
                     $register_success = "Registration successful! You can now log in.";
-                    header('Location: login.php'); // Redirect to login page
+                    header('Location: user_dashboard.php');
                     exit;
                 } catch (PDOException $e) {
                     $register_error = "Error: " . $e->getMessage();
@@ -81,30 +81,6 @@ include 'database_connection.php';
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Protest+Strike&display=swap" rel="stylesheet" />
 </head>
-<script>
-        function showRegisterForm() {
-  event.preventDefault();
-  document.getElementById("login-form").style.display = "none";
-  document.getElementById("register-form").style.display = "block";
-}
-
-function showLoginForm() {
-  event.preventDefault();
-  document.getElementById("register-form").style.display = "none";
-  document.getElementById("login-form").style.display = "block";
-}
-
-function goBackToHomepage() {
-  location.reload();
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-  const registerForm = document.getElementById("register-form");
-  if (registerForm && window.location.hash === "#register-form") {
-    registerForm.scrollIntoView();
-  }
-});
-    </script>
 <body>
     <div class="header">
         <div class="left-section">
@@ -279,4 +255,28 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>
     </div>
 </body>
+<script>
+        function showRegisterForm() {
+  event.preventDefault();
+  document.getElementById("login-form").style.display = "none";
+  document.getElementById("register-form").style.display = "block";
+}
+
+function showLoginForm() {
+  event.preventDefault();
+  document.getElementById("register-form").style.display = "none";
+  document.getElementById("login-form").style.display = "block";
+}
+
+function goBackToHomepage() {
+  location.reload();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const registerForm = document.getElementById("register-form");
+  if (registerForm && window.location.hash === "#register-form") {
+    registerForm.scrollIntoView();
+  }
+});
+    </script>
 </html>

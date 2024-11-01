@@ -1,16 +1,14 @@
 <?php
 session_start();
+require 'database_connection.php';
 if (!isset($_SESSION['user_logged_in']) || !isset($_SESSION['user_id'])) {
     header('Location: index.php');
     exit;
 }
 
-// Database connection
-require 'database_connection.php';
-
 if (isset($_POST['logout'])) {
-    session_destroy(); // Clear all session data
-    header('Location: index.php'); // Redirect to the homepage
+    session_destroy(); 
+    header('Location: index.php'); 
     exit;
 }
 
@@ -26,9 +24,9 @@ if (!$user) {
 }
 
 // Pagination Variables
-$limit = 5; // Number of records per page
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1; // Current page number
-$offset = ($page - 1) * $limit; // Offset for SQL query
+$limit = 5; 
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1; 
+$offset = ($page - 1) * $limit; 
 
 // Fetch requests
 $stmt = $pdo->prepare("SELECT r.id, r.preferred_date, r.preferred_time, r.payment_method, r.status, p.status AS payment_status 
@@ -49,12 +47,12 @@ $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $countStmt = $pdo->prepare("SELECT COUNT(*) FROM nutritionist_requests WHERE user_id = :user_id");
 $countStmt->execute(['user_id' => $userId]);
 $totalRequests = $countStmt->fetchColumn();
-$totalPages = ceil($totalRequests / $limit); // Total number of pages
+$totalPages = ceil($totalRequests / $limit); 
 
 // Fetch body data history
-$bodyDataLimit = 10; // Number of records per page
-$bodyDataPage = isset($_GET['body_data_page']) ? (int)$_GET['body_data_page'] : 1; // Current page number
-$bodyDataOffset = ($bodyDataPage - 1) * $bodyDataLimit; // Offset for SQL query
+$bodyDataLimit = 10; 
+$bodyDataPage = isset($_GET['body_data_page']) ? (int)$_GET['body_data_page'] : 1;
+$bodyDataOffset = ($bodyDataPage - 1) * $bodyDataLimit; 
 
 $bodyDataQuery = 'SELECT bdh.*, u.first_name, u.last_name 
                   FROM body_data_history bdh
@@ -75,7 +73,7 @@ $countBodyDataStmt = $pdo->prepare("SELECT COUNT(*) FROM body_data_history WHERE
 $countBodyDataStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
 $countBodyDataStmt->execute();
 $totalBodyData = $countBodyDataStmt->fetchColumn();
-$totalBodyDataPages = ceil($totalBodyData / $bodyDataLimit); // Total number of pages
+$totalBodyDataPages = ceil($totalBodyData / $bodyDataLimit);
 
 
 // Handle form submissions
@@ -246,7 +244,7 @@ $paymentMethodMapping = [
             <strong>Upcoming Nutritionist Meetings:</strong>
             <ul>
                 <?php
-                    $counter = 1; // Initialize a counter
+                    $counter = 1;
                     foreach ($upcomingRequests as $request):
                 ?>
                     <li id="request-<?php echo $request['id']; ?>">
@@ -399,7 +397,7 @@ $paymentMethodMapping = [
     </div>
 
     <?php
-    // Fetch requests and payment statuses with pagination
+    
     $sql = "SELECT r.id, r.preferred_date, r.preferred_time, r.payment_method, r.status, p.status AS payment_status
             FROM nutritionist_requests r
             LEFT JOIN payments p ON r.id = p.request_id
@@ -495,7 +493,7 @@ $paymentMethodMapping = [
 
 
 
-                       <!--Body Data History Table-->
+    <!--Body Data History Table-->
     <div class="body-data-history" id="body-data-history-section">
     <h1>Manage Your Body Data</h1>
     <div style="display: flex;">
@@ -658,28 +656,28 @@ $paymentMethodMapping = [
             if (successMessage) {
                 setTimeout(() => {
                     successMessage.style.opacity = '0';
-                    setTimeout(() => successMessage.remove(), 500); // Remove from DOM after fade out
-                }, 3000); // 3-second delay
+                    setTimeout(() => successMessage.remove(), 500);
+                }, 3000);
             }
 
             if (errorMessage) {
                 setTimeout(() => {
                     errorMessage.style.opacity = '0';
-                    setTimeout(() => errorMessage.remove(), 500); // Remove from DOM after fade out
-                }, 3000); // 3-second delay
+                    setTimeout(() => errorMessage.remove(), 500);
+                }, 3000);
             }
         }
 
-        // Call the function on page load
+        
         window.onload = hideMessages;
 
         document.addEventListener('DOMContentLoaded', function() {
         const successMessage = document.getElementById('success-message');
         if (successMessage) {
             setTimeout(() => {
-                successMessage.style.opacity = '0'; // Fade out effect
-                setTimeout(() => successMessage.remove(), 500); // Remove from DOM after fade out
-            }, 3000); // 3-second delay
+                successMessage.style.opacity = '0'; 
+                setTimeout(() => successMessage.remove(), 500); 
+            }, 3000);
         }
     });
 
@@ -688,7 +686,7 @@ $paymentMethodMapping = [
         if (update_profile_message) {
             setTimeout(() => {
                 message.style.display = 'none';
-            }, 3000); // 3000 milliseconds = 3 seconds
+            }, 3000);
         }
     };
 
@@ -711,27 +709,27 @@ $paymentMethodMapping = [
 
 function searchTable() {
     const input = document.getElementById('searchBar');
-    const filter = input.value.trim().toLowerCase(); // Trim and convert to lowercase
+    const filter = input.value.trim().toLowerCase(); 
     const table = document.getElementById('bodyDataTable');
     const rows = table.getElementsByTagName('tr');
 
-    for (let i = 1; i < rows.length; i++) { // Start from 1 to skip the header row
+    for (let i = 1; i < rows.length; i++) { 
         const cells = rows[i].getElementsByTagName('td');
-        const idCell = cells[0]; // Get the ID cell (first column)
+        const idCell = cells[0]; 
         
-        // Check if the ID cell includes the filter value
+        
         if (idCell.innerText.trim().toLowerCase().includes(filter)) {
-            rows[i].style.display = ''; // Show the row
+            rows[i].style.display = '';
         } else {
-            rows[i].style.display = 'none'; // Hide the row
+            rows[i].style.display = 'none';
         }
     }
 }
 
 function resetSearch() {
     const input = document.getElementById('searchBar');
-    input.value = ''; // Clear the input field
-    searchTable(); // Show all rows
+    input.value = ''; 
+    searchTable();
 }
 
 function searchRequestTable() {
@@ -742,21 +740,21 @@ function searchRequestTable() {
 
     for (let i = 0; i < rows.length; i++) {
         const cells = rows[i].getElementsByTagName('td');
-        const requestIDCell = cells[0]; // Get the Request ID cell (first column)
+        const requestIDCell = cells[0]; 
 
         // Check if the Request ID cell includes the filter value
         if (requestIDCell.innerText.trim().toLowerCase().includes(filter)) {
-            rows[i].style.display = ''; // Show the row
+            rows[i].style.display = ''; 
         } else {
-            rows[i].style.display = 'none'; // Hide the row
+            rows[i].style.display = 'none'; 
         }
     }
 }
 
 function resetRequestSearch() {
     const input = document.getElementById('searchRequestID');
-    input.value = ''; // Clear the input field
-    searchRequestTable(); // Show all rows
+    input.value = ''; 
+    searchRequestTable(); 
 }
 
  document.addEventListener('DOMContentLoaded', function() {
@@ -772,17 +770,17 @@ function resetRequestSearch() {
             buttons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
             selectedPayment = button.getAttribute('data-value');
-            paymentMethodInput.value = selectedPayment; // Set the payment method value
-            errorMessage.style.display = 'none'; // Hide error message
+            paymentMethodInput.value = selectedPayment; 
+            errorMessage.style.display = 'none'; 
         });
     });
 
         requestButton.addEventListener('click', () => {
         if (!selectedPayment) {
-            errorMessage.style.display = 'block'; // Show error message
+            errorMessage.style.display = 'block'; 
         } else {
-            paymentMethodInput.value = selectedPayment; // Set the payment method value
-            meetingForm.style.display = 'block'; // Show the meeting form
+            paymentMethodInput.value = selectedPayment;
+            meetingForm.style.display = 'block';
         }
     });
 });
@@ -808,19 +806,19 @@ document.addEventListener('DOMContentLoaded', function() {
             buttons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
             selectedPayment = button.getAttribute('data-value');
-            paymentMethodInput.value = selectedPayment; // Set the payment method value
-            additionalFields.style.display = 'block'; // Show additional fields
-            submitButton.style.display = 'block'; // Show submit button
+            paymentMethodInput.value = selectedPayment; 
+            additionalFields.style.display = 'block'; 
+            submitButton.style.display = 'block'; 
         });
     });
 });
 
 document.getElementById("signupForm").addEventListener("submit", function(event) {
     const telInput = document.querySelector('input[type="tel"]');
-    const regex = /^[0-9]+$/; // Only digits
+    const regex = /^[0-9]+$/; 
 
     if (!regex.test(telInput.value)) {
-        event.preventDefault(); // Prevent form submission
+        event.preventDefault(); 
         alert("Please enter a valid phone number.");
     }
 });
@@ -841,22 +839,22 @@ document.getElementById("signupForm").addEventListener("submit", function(event)
     function setEndDate() {
         const startDate = new Date(document.getElementById('start_date').value);
         const endDate = new Date(startDate);
-        endDate.setMonth(startDate.getMonth() + 1); // Set end date to one month later
+        endDate.setMonth(startDate.getMonth() + 1);
         document.getElementById('end_date').value = endDate.toISOString().split('T')[0];
     }
 
     function selectPaymentMethod(method) {
     // Store the selected payment method
     document.getElementById('payment-method').value = method; 
-    document.getElementById('error-message').style.display = 'none'; // Hide error message
+    document.getElementById('error-message').style.display = 'none'; 
     
-    // Remove 'selected' class from all payment buttons
+    
     const buttons = document.querySelectorAll('.payment-button');
     buttons.forEach(button => {
         button.classList.remove('selected');
     });
 
-    // Add 'selected' class to the clicked button
+    
     const selectedButton = Array.from(buttons).find(button => button.dataset.value === method);
     if (selectedButton) {
         selectedButton.classList.add('selected');
@@ -874,19 +872,19 @@ function markAsRead(requestId) {
     })
     .then(response => {
         if (response.ok) {
-            // Update the UI to show that the notification is read
+            
             const requestElement = document.getElementById(`request-${requestId}`);
             if (requestElement) {
                 requestElement.style.textDecoration = 'line-through';
-                requestElement.style.color = 'gray'; // Optional: change color
+                requestElement.style.color = 'gray'; 
 
-                // Hide the element after 3 seconds
+                
                 setTimeout(() => {
-                    requestElement.style.display = 'none'; // Hide the element
-                }, 1500); // 3000 milliseconds = 3 seconds
+                    requestElement.style.display = 'none'; 
+                }, 1500); 
             }
         } else {
-            console.error('Failed to mark as read');
+            $_SESSION['error_message'] = "Failed to mark as read.";
         }
     })
     .catch(error => console.error('Error:', error));

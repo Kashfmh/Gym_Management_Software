@@ -2,7 +2,7 @@
 body {
   font-family: "Roboto", sans-serif;
   background-color: #edf2f4;
-  color: #2b2d42; /* Keeping the text color consistent */
+  color: #2b2d42;
   margin: 0;
   padding: 0;
   display: flex;
@@ -373,10 +373,10 @@ button:hover {
 .search-bar input[type="text"] {
   padding: 10px;
   border: 1px solid #ccc;
-  border-radius: 4px 0 0 4px; /* Rounded left corners */
-  width: 300px; /* Set a fixed width */
-  height: 20px; /* Match height with button */
-  outline: none; /* Remove outline on focus */
+  border-radius: 4px 0 0 4px;
+  width: 300px;
+  height: 20px;
+  outline: none;
 }
 
 .reset-button {
@@ -392,7 +392,7 @@ button:hover {
 }
 
 .search-bar button:hover {
-  background-color: #537c5b; /* Darker shade on hover */
+  background-color: #537c5b;
 }
 
 /* Profile Section */
@@ -415,8 +415,8 @@ button:hover {
 
 .profile-header img {
   height: 80px;
-  border-radius: 50%; /* Circular avatar */
-  border: 2px solid #3a5a40; /* Border around the avatar */
+  border-radius: 50%;
+  border: 2px solid #3a5a40;
 }
 
 #admin-name {
@@ -427,7 +427,7 @@ button:hover {
 
 .profile-header p {
   font-size: 16px;
-  color: #6c757d; /* Lighter text for email */
+  color: #6c757d;
 }
 
 .profile-header button {
@@ -494,7 +494,7 @@ button:hover {
 
 #edit-profile-form input[type="text"]:focus,
 #edit-profile-form input[type="email"]:focus {
-  border-color: #3a5a40; /* Focus border color */
+  border-color: #3a5a40;
 }
 
 #edit-profile-form button {
@@ -523,7 +523,7 @@ button:hover {
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  display: block; /* Center the button */
+  display: block;
   width: 100%;
 }
 
@@ -540,7 +540,7 @@ button:hover {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  width: 100%; /* Full width for consistency */
+  width: 100%;
 }
 
 .logout-button:hover {
@@ -551,7 +551,6 @@ button:hover {
   background-color: #c9302c;
 }
 
-/* Responsive Adjustments */
 @media (max-width: 768px) {
   .services {
     grid-template-columns: 1fr;

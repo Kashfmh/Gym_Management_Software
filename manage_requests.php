@@ -41,6 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_id']) && isse
         $_SESSION['status'] = 'Invalid action.';
     }
 
-    header('Location: admin_dashboard.php'); // Redirect back to the dashboard
+    header('Location: admin_dashboard.php');
     exit;
 }

@@ -6,8 +6,8 @@ if (!isset($_SESSION['admin_logged_in'])) {
     exit;
 }
 if (isset($_POST['logout'])) {
-    session_destroy(); // Clear all session data
-    header('Location: index.php'); // Redirect to the homepage
+    session_destroy(); 
+    header('Location: index.php'); 
     exit;
 }
 
@@ -23,16 +23,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_meeting'])) {
     $preferred_time = $_POST['preferred_time'];
     $payment_method = $_POST['payment_method'];
 
-    // Insert into nutritionist_requests
+    
     $stmt = $pdo->prepare("INSERT INTO nutritionist_requests (user_id, preferred_date, preferred_time, payment_method) VALUES (?, ?, ?, ?)");
     $stmt->execute([$user_id, $preferred_date, $preferred_time, $payment_method]);
 
-    // Get the last inserted request ID
+    
     $request_id = $pdo->lastInsertId();
 
     // Insert payment record
-    $amount = 20.00; // Fixed amount for each session
-    $status = 'Pending'; // Default status
+    $amount = 20.00;
+    $status = 'Pending';
     $paymentStmt = $pdo->prepare("INSERT INTO payments (request_id, user_id, amount, payment_method, payment_date, status) VALUES (?, ?, ?, ?, ?, ?)");
     $paymentStmt->execute([$request_id, $user_id, $amount, $payment_method, $preferred_date, $status]);
 
@@ -59,8 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $limit = 5; 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1; 
 $offset = ($page - 1) * $limit; 
-
-// Fetch users for dropdown
 $users = fetchUsers($pdo);
 
 // Fetch nutritionist requests
@@ -421,7 +419,7 @@ $paymentMethodMapping = [
     });
 
     function handleFormSubmit(event, requestId, action) {
-        event.preventDefault(); // Prevent the default form submission
+        event.preventDefault(); 
 
         // Create a hidden input to specify the action
         const form = document.createElement('form');
@@ -440,9 +438,9 @@ $paymentMethodMapping = [
 
         form.appendChild(requestIdInput);
         form.appendChild(actionInput);
-        document.body.appendChild(form); // Append form to body
+        document.body.appendChild(form); 
 
-        form.submit(); // Submit the form
+        form.submit(); 
     }
 
 
@@ -458,37 +456,37 @@ $paymentMethodMapping = [
         const lastName = cells[3].textContent.toLowerCase();
 
         if (id.includes(filter) || firstName.includes(filter) || lastName.includes(filter)) {
-            row.style.display = ''; // Show row
+            row.style.display = ''; 
         } else {
-            row.style.display = 'none'; // Hide row
+            row.style.display = 'none'; 
         }
     });
 }
 
 function resetSearch() {
     const input = document.getElementById('searchBar');
-    input.value = ''; // Clear the input field
-    searchTable(); // Show all rows
+    input.value = ''; 
+    searchTable(); 
 }
 
 function resetSearchRequests() {
     const input = document.getElementById('requestSearchBar');
-    input.value = ''; // Clear the input field
-    searchRequestTable(); // Show all rows
+    input.value = ''; 
+    searchRequestTable(); 
 }
 
 function sortTableByDate() {
     const table = document.getElementById('bodyDataTable');
     const rows = Array.from(table.getElementsByTagName('tr'));
 
-    // Sort rows based on payment date (7th column, index 6)
+    
     rows.sort((a, b) => {
-        const dateA = new Date(a.cells[6].innerText); // Payment Date
+        const dateA = new Date(a.cells[6].innerText); 
         const dateB = new Date(b.cells[6].innerText);
-        return dateB - dateA; // Newest first
+        return dateB - dateA; 
     });
 
-    // Append sorted rows back to the table body
+    
     rows.forEach(row => table.appendChild(row));
 }
 
@@ -505,9 +503,9 @@ function searchRequestTable() {
         const lastName = cells[2].textContent.toLowerCase();
 
         if (userId.includes(filter) || firstName.includes(filter) || lastName.includes(filter)) {
-            row.style.display = ''; // Show row
+            row.style.display = ''; 
         } else {
-            row.style.display = 'none'; // Hide row
+            row.style.display = 'none'; 
         }
     });
 }

@@ -5,7 +5,7 @@ if (!isset($_SESSION['admin_logged_in'])) {
     header('Location: index.php');
     exit;
 }
-// Check if the request is for inserting or updating a payment
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['payment_id'])) {
         // Update existing payment
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } else {
         // Insert new payment
-        $userId = $_POST['user_id']; // Ensure these values are sanitized
+        $userId = $_POST['user_id']; 
         $amount = $_POST['amount'];
         $paymentMethod = $_POST['payment_method'];
 
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['status'] = 'New payment request created.';
     }
 
-    header('Location: admin_dashboard.php'); // Redirect back to the dashboard
+    header('Location: admin_dashboard.php');
     exit;
 }
 ?>

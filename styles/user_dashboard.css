@@ -147,19 +147,19 @@ body {
 
 .notification {
   padding: 15px;
-  margin-bottom: 15px; /* Adjusted margin for better spacing */
+  margin-bottom: 15px;
   border-radius: 5px;
-  background-color: white; /* Light green background */
-  color: #155724; /* Dark green text */
-  border: 1px solid #c3e6cb; /* Green border */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  transition: opacity 0.5s ease-in-out; /* Smooth transition */
+  background-color: white;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: opacity 0.5s ease-in-out;
 }
 
 .notification-info {
-  background-color: #e9f7fe; /* Light blue background */
-  color: #0c5460; /* Dark blue text */
-  border: 1px solid #bee5eb; /* Blue border */
+  background-color: #e9f7fe;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
   font-family: Bebas Neue, Arial;
   font-size: 25px;
 }
@@ -169,19 +169,19 @@ body {
 }
 
 .notification ul {
-  list-style-type: none; /* Remove bullet points */
-  padding: 0; /* Remove padding */
-  margin-bottom: 10px; /* Remove margin */
+  list-style-type: none;
+  padding: 0;
+  margin-bottom: 10px;
   font-size: 20px;
   font-family: Arial;
 }
 
 .notification li {
-  margin: 15px 0; /* Space between list items */
+  margin: 15px 0;
 }
 
 .notification strong {
-  font-weight: bold; /* Bold text for the title */
+  font-weight: bold;
 }
 
 .sign-up-classes {
@@ -212,13 +212,13 @@ body {
 }
 
 .card {
-  background-color: #ffffff; /* White background for cards */
-  border: 1px solid #ccc; /* Light grey border */
+  background-color: #ffffff;
+  border: 1px solid #ccc;
   border-radius: 5px;
   padding: 15px;
-  width: 30%; /* Adjust width as needed */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  text-align: center; /* Center text */
+  width: 30%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: center;
   transition: transform 0.3s;
 }
 
@@ -227,16 +227,16 @@ body {
 }
 
 .card h2 {
-  font-size: 1.5em; /* Title size */
+  font-size: 1.5em;
 }
 
 .card p {
-  margin: 10px 0; /* Space above and below paragraph */
+  margin: 10px 0;
 }
 
 .card p:nth-child(3) {
-  font-weight: bold; /* Make the price bold */
-  color: #2b2d42; /* Change color for emphasis */
+  font-weight: bold;
+  color: #2b2d42;
 }
 
 .signupforms {
@@ -244,9 +244,9 @@ body {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  margin: 40px auto; /* Center the form */
-  max-width: 600px; /* Maximum width */
-  width: 90%; /* Responsive width */
+  margin: 40px auto;
+  max-width: 600px;
+  width: 90%;
 }
 
 /* Form Title */
@@ -254,7 +254,7 @@ body {
   color: #3b5998;
   text-align: center;
   margin-bottom: 20px;
-  font-size: 1.5rem; /* Title size */
+  font-size: 1.5rem;
 }
 
 #signupFormSection h2 {
@@ -274,37 +274,37 @@ body {
 .signupforms input[type="tel"],
 .signupforms input[type="time"],
 .signupforms select {
-  width: 100%; /* Full width */
-  padding: 12px; /* Padding inside input */
-  margin-bottom: 15px; /* Space below each input */
-  border: 1px solid #ccc; /* Light gray border */
-  border-radius: 4px; /* Rounded corners */
-  box-sizing: border-box; /* Include padding and border in element's total width and height */
-  font-size: 16px; /* Font size */
-  transition: border-color 0.3s; /* Smooth transition for border color */
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 16px;
+  transition: border-color 0.3s;
 }
 
 .signupforms input:focus,
 .signupforms select:focus {
-  border-color: #3b5998; /* Change border color on focus */
-  outline: none; /* Remove default outline */
+  border-color: #3b5998;
+  outline: none;
 }
 
 /* Submit Button */
 .signupforms button {
-  width: 100%; /* Full width */
-  padding: 12px; /* Padding inside button */
-  background-color: #3b5998; /* Primary button color */
-  color: white; /* Button text color */
-  border: none; /* Remove border */
-  border-radius: 4px; /* Rounded corners */
-  cursor: pointer; /* Pointer cursor on hover */
-  transition: background-color 0.3s; /* Smooth transition for background color */
-  font-size: 16px; /* Font size */
+  width: 100%;
+  padding: 12px;
+  background-color: #3b5998;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 16px;
 }
 
 .signupforms button:hover {
-  background-color: #8b9dc3; /* Change background color on hover */
+  background-color: #8b9dc3;
 }
 
 .sign-forms button:active {

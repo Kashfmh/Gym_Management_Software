@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $sql = "UPDATE admins SET name = ?, email = ?, mobile = ?";
 
-    // Check if a new password was provided
+    
     if (!empty($password)) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         $sql .= ", password = ?";
@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $sql .= " WHERE id = ?";
 
-    // Execute the query
+    
     $stmt = $pdo->prepare($sql);
     if (!empty($password)) {
         $stmt->execute([$name, $email, $mobile, $hashed_password, $admin_id]);
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     $_SESSION['success_message'] = "Profile updated successfully.";
-    // Redirect back to the profile page
+    
     header('Location: admin_dashboard.php');
     exit;
 }

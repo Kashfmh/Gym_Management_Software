@@ -5,11 +5,11 @@ if (!isset($_SESSION['user_logged_in']) || !isset($_SESSION['user_id'])) {
     header('Location: index.php');
     exit;
 }
-// Check if ID is set
+
 if (isset($_POST['id'])) {
     $id = $_POST['id'];
 
-    // Fetch current body data
+    
     $stmt = $pdo->prepare("SELECT * FROM body_data_history WHERE id = :id");
     $stmt->bindParam(':id', $id, PDO::PARAM_INT);
     $stmt->execute();
@@ -21,7 +21,7 @@ if (isset($_POST['id'])) {
         exit;
     }
 
-    // Handle form submission for updating
+    
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_body_data'])) {
         $height = $_POST['height'];
         $weight = $_POST['weight'];
@@ -29,7 +29,7 @@ if (isset($_POST['id'])) {
         $exercise = $_POST['exercise'];
         $water_consumption = $_POST['water_consumption'];
 
-        // Update body data
+        
         $updateStmt = $pdo->prepare("UPDATE body_data_history SET height = ?, weight = ?, bmi = ?, exercise = ?, water_consumption = ? WHERE id = ?");
         if ($updateStmt->execute([$height, $weight, $bmi, $exercise, $water_consumption, $id])) {
             $_SESSION['success_message'] = "Body data successfully updated.";
@@ -37,7 +37,7 @@ if (isset($_POST['id'])) {
             $_SESSION['error_message'] = "Failed to update body data.";
         }
 
-        // Redirect back to user dashboard
+        
         header('Location: user_dashboard.php');
         exit;
     }

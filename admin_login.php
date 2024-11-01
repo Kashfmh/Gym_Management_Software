@@ -2,12 +2,12 @@
 session_start();
 include 'database_connection.php';
 
-// Admin Login Logic
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['admin_login'])) {
     $admin_email = $_POST['admin_email'];
     $admin_password = $_POST['admin_password'];
 
-    // Fetch admin details
+
     $stmt = $pdo->prepare('SELECT * FROM admins WHERE email = ?');
     $stmt->execute([$admin_email]);
     $admin = $stmt->fetch();
@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['admin_login'])) {
     if ($admin && password_verify($admin_password, $admin['password'])) {
         $_SESSION['admin_logged_in'] = true;
         $_SESSION['admin_id'] = $admin['id'];
-        header('Location: admin_dashboard.php'); // Redirect to admin dashboard
+        header('Location: admin_dashboard.php');
         exit;
     } else {
         $admin_login_error = "Invalid email or password.";

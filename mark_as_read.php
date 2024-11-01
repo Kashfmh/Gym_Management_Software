@@ -6,7 +6,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     $requestId = $data['id'];
 
-    // Update the is_read status in the database
     $stmt = $pdo->prepare("UPDATE nutritionist_requests SET is_read = 1 WHERE id = :id AND user_id = :user_id");
     $stmt->execute([
         'id' => $requestId,

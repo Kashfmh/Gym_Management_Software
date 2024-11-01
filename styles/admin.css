@@ -4,7 +4,7 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  margin: 0; /* Remove default margin */
+  margin: 0;
 }
 
 .login-box-admin {
@@ -19,9 +19,9 @@ body {
 
 .admin-txt {
   color: #a3b18a;
-  font-size: 38px; /* Adjust font size */
+  font-size: 38px;
   font-family: "Bebas Neue", sans-serif;
-  margin-bottom: 20px; /* Add space below title */
+  margin-bottom: 20px;
 }
 
 .input-group {
@@ -39,7 +39,7 @@ body {
 }
 
 .input-field:focus {
-  border-color: #2b2d42; /* Focus border color */
+  border-color: #2b2d42; 
   outline: none;
 }
 
@@ -47,7 +47,7 @@ body {
   width: 100%;
   margin-top: 20px;
   padding: 12px;
-  background-color: #a3b18a; /* Button background color */
+  background-color: #a3b18a;
   color: white;
   border: none;
   border-radius: 5px;
@@ -57,7 +57,7 @@ body {
 }
 
 .login-button-admin:hover {
-  background-color: #7a8568; /* Button hover color */
+  background-color: #7a8568; 
 }
 
 .back-to-homepage-text {

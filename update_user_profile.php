@@ -2,13 +2,13 @@
 session_start();
 include 'database_connection.php';
 if (!isset($_SESSION['user_logged_in']) || !isset($_SESSION['user_id'])) {
-    header('Location: index.php'); // Redirect to login page if not logged in
+    header('Location: index.php'); 
     exit;
 }
 
 // Fetch user details
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = :id");
-$stmt->execute(['id' => $_SESSION['user_id']]); // Use user_id from session
+$stmt->execute(['id' => $_SESSION['user_id']]); 
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$user) {
@@ -44,12 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'id' => $user_id
         ]);
 
-        $_SESSION['success_message'] = "Profile updated successfully!"; // Success message
+        $_SESSION['success_message'] = "Profile updated successfully!"; 
     } catch (PDOException $e) {
-        $_SESSION['error_message'] = "Error updating profile: " . $e->getMessage(); // Error message
+        $_SESSION['error_message'] = "Error updating profile: " . $e->getMessage(); 
     }
 
-    header('Location: user_dashboard.php'); // Redirect back to the dashboard
+    header('Location: user_dashboard.php'); 
     exit;
 }
 ?>
