@@ -1,0 +1,343 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Generation Time: Nov 01, 2024 at 04:34 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `gym_management`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `admins`
+--
+
+CREATE TABLE `admins` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `mobile` varchar(15) DEFAULT NULL,
+  `password` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Dumping data for table `admins`
+--
+
+INSERT INTO `admins` (`id`, `name`, `email`, `mobile`, `password`) VALUES
+(5, 'Admin', 'admin@gmail.com', '01123776041', '$2y$10$PhEYDIt1esxhtzbbzy0qfOFAPff3pfAibwRww7SpYepKYt3h5KmJq');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `body_data_history`
+--
+
+CREATE TABLE `body_data_history` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `height` decimal(5,2) DEFAULT NULL,
+  `weight` decimal(5,2) DEFAULT NULL,
+  `bmi` decimal(5,2) DEFAULT NULL,
+  `exercise` varchar(255) DEFAULT NULL,
+  `water_consumption` decimal(5,2) DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Dumping data for table `body_data_history`
+--
+
+INSERT INTO `body_data_history` (`id`, `user_id`, `height`, `weight`, `bmi`, `exercise`, `water_consumption`, `created_at`) VALUES
+(19, 11, 171.00, 50.00, 17.10, 'testing', 5.00, '2024-10-31 11:39:00'),
+(20, 11, 190.00, 32.00, 8.86, 'testing', 2.00, '2024-10-29 11:42:00');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `fitness_classes`
+--
+
+CREATE TABLE `fitness_classes` (
+  `ClassID` int(11) NOT NULL,
+  `PaymentMethod` varchar(50) NOT NULL,
+  `Price` decimal(10,2) NOT NULL,
+  `CreatedAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `UpdatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `user_id` int(11) DEFAULT NULL,
+  `first_name` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `start_date` datetime DEFAULT NULL,
+  `end_date` datetime DEFAULT NULL,
+  `class_name` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `fitness_classes`
+--
+
+INSERT INTO `fitness_classes` (`ClassID`, `PaymentMethod`, `Price`, `CreatedAt`, `UpdatedAt`, `user_id`, `first_name`, `email`, `phone`, `start_date`, `end_date`, `class_name`) VALUES
+(44, 'e_wallet', 50.00, '2024-10-28 19:39:09', '2024-10-28 19:39:09', 11, 'Aakash', 'aakashpai2007@gmail.com', '01123776040', '2024-10-31 00:00:00', '2024-12-01 00:00:00', NULL),
+(45, 'cash', 50.00, '2024-10-28 20:08:16', '2024-10-28 20:08:16', 11, 'Aakash', 'aakashpai2007@gmail.com', '01123776040', '2024-10-31 00:00:00', '2024-12-01 00:00:00', NULL),
+(46, 'bank_transfer', 100.00, '2024-10-29 04:19:38', '2024-10-29 04:19:38', 11, 'Aakash', 'aakashpai2007@gmail.com', '01123776040', '2024-10-30 00:00:00', '2024-11-30 00:00:00', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nutritionist_requests`
+--
+
+CREATE TABLE `nutritionist_requests` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `preferred_date` date DEFAULT NULL,
+  `preferred_time` time DEFAULT NULL,
+  `status` enum('Pending','Approved','Rejected') DEFAULT 'Pending',
+  `created_at` datetime DEFAULT current_timestamp(),
+  `payment_method` varchar(50) DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `is_read` tinyint(1) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Dumping data for table `nutritionist_requests`
+--
+
+INSERT INTO `nutritionist_requests` (`id`, `user_id`, `preferred_date`, `preferred_time`, `status`, `created_at`, `payment_method`, `updated_at`, `is_read`) VALUES
+(99, 11, '2024-10-30', '02:58:00', 'Approved', '2024-10-29 02:58:35', 'credit_card', '2024-10-28 18:58:38', 0),
+(100, 11, '2024-10-30', '15:00:00', 'Approved', '2024-10-29 03:00:34', 'bank_transfer', '2024-10-28 19:00:36', 0),
+(101, 12, '2024-10-30', '15:00:00', 'Approved', '2024-10-29 03:00:45', 'cash', '2024-10-28 19:01:47', 0),
+(102, 12, '2024-10-30', '15:02:00', 'Approved', '2024-10-29 03:02:05', 'bank_transfer', '2024-10-28 19:02:12', 0),
+(103, 12, '2024-10-30', '15:03:00', 'Approved', '2024-10-29 03:03:35', 'credit_card', '2024-10-28 19:03:39', 0),
+(107, 11, '2024-10-30', '15:07:00', 'Approved', '2024-10-29 03:07:45', 'bank_transfer', '2024-10-29 04:14:38', 1),
+(108, 11, '2024-11-06', '15:17:00', 'Pending', '2024-10-29 03:17:58', 'bank_transfer', '2024-10-28 19:17:58', 0),
+(109, 12, '2024-10-30', '15:33:00', 'Approved', '2024-10-29 03:33:06', 'bank_transfer', '2024-10-28 19:33:13', 0),
+(110, 11, '2024-10-31', '03:33:00', 'Approved', '2024-10-29 03:33:37', 'bank_transfer', '2024-10-28 19:38:59', 1),
+(111, 12, '2024-10-30', '03:36:00', 'Approved', '2024-10-29 03:35:19', 'bank_transfer', '2024-10-28 19:35:24', 0),
+(112, 12, '2024-10-30', '15:36:00', 'Approved', '2024-10-29 03:36:52', 'cash', '2024-10-28 19:36:57', 0),
+(113, 12, '2024-10-30', '15:37:00', 'Approved', '2024-10-29 03:37:07', 'bank_transfer', '2024-10-28 19:37:11', 0),
+(114, 11, '2024-10-31', '00:14:00', 'Pending', '2024-10-29 12:14:26', 'credit_card', '2024-10-29 04:14:26', 0),
+(115, 11, '2024-10-31', '12:21:00', 'Approved', '2024-10-29 12:21:41', 'cash', '2024-10-29 04:22:01', 0);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `password_resets`
+--
+
+CREATE TABLE `password_resets` (
+  `id` int(11) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `payments`
+--
+
+CREATE TABLE `payments` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `payment_method` enum('credit_card','bank_transfer','cash') NOT NULL,
+  `payment_date` datetime DEFAULT current_timestamp(),
+  `status` enum('completed','pending','failed') DEFAULT 'pending',
+  `request_id` int(11) DEFAULT NULL,
+  `payment_type` enum('nutritionist_request','membership') NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Dumping data for table `payments`
+--
+
+INSERT INTO `payments` (`id`, `user_id`, `amount`, `payment_method`, `payment_date`, `status`, `request_id`, `payment_type`) VALUES
+(89, 11, 20.00, 'bank_transfer', '2024-10-30 00:00:00', 'completed', 107, 'nutritionist_request'),
+(90, 11, 20.00, 'bank_transfer', '2024-11-06 00:00:00', 'pending', NULL, 'nutritionist_request'),
+(91, 12, 20.00, 'bank_transfer', '2024-10-30 00:00:00', 'pending', NULL, 'nutritionist_request'),
+(92, 11, 20.00, 'bank_transfer', '2024-10-31 00:00:00', 'pending', NULL, 'nutritionist_request'),
+(93, 12, 20.00, 'bank_transfer', '2024-10-30 00:00:00', 'pending', NULL, 'nutritionist_request'),
+(94, 12, 20.00, 'cash', '2024-10-30 00:00:00', '', 112, 'nutritionist_request'),
+(95, 12, 20.00, 'bank_transfer', '2024-10-30 00:00:00', '', 113, 'nutritionist_request'),
+(96, 11, 20.00, 'credit_card', '2024-10-31 00:00:00', 'pending', 114, 'nutritionist_request'),
+(97, 11, 20.00, 'cash', '2024-10-31 00:00:00', 'completed', 115, 'nutritionist_request');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `phone` varchar(15) DEFAULT NULL,
+  `password` varchar(255) NOT NULL,
+  `weight` int(11) DEFAULT NULL,
+  `height` int(11) DEFAULT NULL,
+  `first_name` varchar(255) DEFAULT NULL,
+  `last_name` varchar(255) DEFAULT NULL,
+  `city` varchar(255) DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `address` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `email`, `phone`, `password`, `weight`, `height`, `first_name`, `last_name`, `city`, `state`, `address`) VALUES
+(11, 'aakashpai2007@gmail.com', '01123776040', '$2y$10$Ysz23lGIkznRyIMcnC5b/O/yvx9uya3MY0mmtc/GWfb4fvkSEfbou', 51, 173, 'Aakash', 'Pai', 'Subang Jaya', 'Selangor', 'B-1-02, Nautica Lake Suites Condominium, Sunway South Quay,\r\nJalan Tasik Selatan, Bandar Sunway 47500'),
+(12, 'aanchal@gmail.com', '01123776065', '$2y$10$V8LneVMUi.xBeX27AO27g.AB79WD7pT0Wfi1d3dvX9BpBsHohRqaC', 50, 171, 'Aanchal', 'Pai', 'Subang Jaya', 'Selangor', 'B-1-02, Nautica Lake Suites Condominium, Sunway South Quay,\r\nJalan Tasik Selatan, Bandar Sunway 47500');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `admins`
+--
+ALTER TABLE `admins`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `body_data_history`
+--
+ALTER TABLE `body_data_history`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_user_id` (`user_id`);
+
+--
+-- Indexes for table `fitness_classes`
+--
+ALTER TABLE `fitness_classes`
+  ADD PRIMARY KEY (`ClassID`),
+  ADD UNIQUE KEY `ClassID` (`ClassID`),
+  ADD KEY `fk_user` (`user_id`);
+
+--
+-- Indexes for table `nutritionist_requests`
+--
+ALTER TABLE `nutritionist_requests`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_nutritionist_user_id` (`user_id`);
+
+--
+-- Indexes for table `password_resets`
+--
+ALTER TABLE `password_resets`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `payments`
+--
+ALTER TABLE `payments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_payments_request_id` (`request_id`),
+  ADD KEY `fk_payments_user_id` (`user_id`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`),
+  ADD UNIQUE KEY `phone` (`phone`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `admins`
+--
+ALTER TABLE `admins`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `body_data_history`
+--
+ALTER TABLE `body_data_history`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+
+--
+-- AUTO_INCREMENT for table `fitness_classes`
+--
+ALTER TABLE `fitness_classes`
+  MODIFY `ClassID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+
+--
+-- AUTO_INCREMENT for table `nutritionist_requests`
+--
+ALTER TABLE `nutritionist_requests`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=116;
+
+--
+-- AUTO_INCREMENT for table `password_resets`
+--
+ALTER TABLE `password_resets`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+--
+-- AUTO_INCREMENT for table `payments`
+--
+ALTER TABLE `payments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=98;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `body_data_history`
+--
+ALTER TABLE `body_data_history`
+  ADD CONSTRAINT `fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+--
+-- Constraints for table `fitness_classes`
+--
+ALTER TABLE `fitness_classes`
+  ADD CONSTRAINT `fk_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `nutritionist_requests`
+--
+ALTER TABLE `nutritionist_requests`
+  ADD CONSTRAINT `fk_nutritionist_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+--
+-- Constraints for table `payments`
+--
+ALTER TABLE `payments`
+  ADD CONSTRAINT `fk_payments_request_id` FOREIGN KEY (`request_id`) REFERENCES `nutritionist_requests` (`id`),
+  ADD CONSTRAINT `fk_payments_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
